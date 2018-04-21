@@ -108,7 +108,7 @@ class Input{
 		this->wim=0.22;
 		//this->weight = this->wi * fRand(this->wi*2.4,this->wi*2) - this->wim;
 		// this->weight=0.4+fRand(0.15,0.1)+fRand(0.13,0.1)+fRand(0.12,0.1);
-	    this->weight=fRand(0.5,0.4);
+	    this->weight=fRand(0.1,0.07);
 		this->pWeight= this->weight;
 		this->inputValue=0.0;
 
@@ -321,7 +321,7 @@ class Neuron{
 				 this->in.at(inputIndex)->sumDelta(delta);
 				 this->in.at(inputIndex)->sumError(error);
 			 }else{
-				throw new string("Improperly setup backwards propagation");
+				 throw_line("Inputs don't match");
 			 	exit(EXIT_FAILURE);
 			 }
 		 }catch (const std::exception& ex) {
@@ -463,7 +463,7 @@ class NeuralNetwork{
 			     }
 				 cout << "Network created "<< endl;
 		     }else{
-		    	 throw new string("Neuron map improperly formed");
+		    	 throw_line("Improperly constructed neural network");
 		    	 exit(EXIT_FAILURE);
 		     }
 		   }catch (const std::exception& ex) {
@@ -586,17 +586,17 @@ class NeuralNetwork{
 						 cNeuronIndex--;
 					  }while(this->neurons.at(cNeuronIndex)->layer==layer);
 				  }else if(layer>0){
-
+					  // The next neuron input index used to link to upper input id of the fromNeuron
 					  int nlin=this->layers.at(layer).at(2)-1;
 					  do{
 
 						  int nLayerCount=0;
 						  // Neurons end at the previous layer
-						  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
 						  int nextLayerNeuronId=this->layers.at(layer+1).at(1)-1;
 						  int neuronsInNextLayer=this->layers.at(layer+1).at(2);
 
 						  do{
+							  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
 							  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0 && previousNeuronId>-1;pi--,previousNeuronId--){
 									  this->neurons.at(cNeuronIndex)->hiddenNeuronCalcError(pi,nlin,this->neurons.at(previousNeuronId),this->neurons.at(nextLayerNeuronId),this->learningRate,this->momentum,this->eIncreasing);
 							  };
