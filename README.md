@@ -1,6 +1,8 @@
 # NeuralNetworkML
 Multilayered backpropagation neural network using c++
 
+To run go to release folder and run NeuralM.exe 
+
 Capabilities: 
 - As many hidden layers and number of neurons you desire to have
 - As many input and output neurons mapped to input and output data you need
