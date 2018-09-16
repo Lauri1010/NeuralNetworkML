@@ -1,4 +1,4 @@
-# Neural Network ML
+# Multilayer Neural Network
 Multilayered backpropagation neural network developed with c++
 
 You must run the program on windows command prompt (win 10)
