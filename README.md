@@ -1,13 +1,15 @@
 # NeuralNetworkML
 Multilayered backpropagation neural network using c++
 
-Capabilities: 
-- As many hidden layers and number of neurons you desire to have
-- As many input and output neurons mapped to input and output data you need
+You must run the program on windows command prompt (win 10)
+- NeuralM.exe 0 for training mode
+- NeuralM.exe 1 for prediction mode
+
+Note generating the training set may take several hours. The training set is saved to a binary file and then read for the prediction.
 
 Basic installation instructions: 
 - use ide for instance: https://www.eclipse.org/downloads/packages/eclipse-ide-cc-developers/oxygen3a
 - Install cygwin: https://www3.ntu.edu.sg/home/ehchua/programming/howto/EclipseCpp_HowTo.html
   MAKE sure you download all dependencies. 
   
-  Note I recommend that you compile the source yourself in order to make sure it works in your environment.  
+  Compiled with windows Cygwin library 
