@@ -1,9 +1,10 @@
-/*
- * neural.h
- *
- *  Created on: 25.2.2018
- *      Author: Lauri
- */
+//============================================================================
+// Name        : Neuralm.cpp
+// Author      : Lauri Turunen
+// Version     :
+// Copyright   : Lauri Turunen
+// Description :
+//============================================================================
 
 #ifndef NEURAL_H_
 #define NEURAL_H_
