@@ -1,5 +1,5 @@
-# Multiplayer Neural Network 
-Multilayered backpropagation neural network using c++
+# Multilayer Neural Network
+Multilayered backpropagation neural network developed with c++
 
 You must run the program on windows command prompt (win 10)
 - NeuralM.exe 0 for training mode
@@ -12,4 +12,4 @@ Basic installation instructions:
 - Install cygwin: https://www3.ntu.edu.sg/home/ehchua/programming/howto/EclipseCpp_HowTo.html
   MAKE sure you download all dependencies. 
   
-  Compiled with windows Cygwin library 
+  Compiled with windows Cygwin libraries 
