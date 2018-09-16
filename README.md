@@ -1,5 +1,5 @@
-# NeuralNetworkML
-Multilayered backpropagation neural network using c++
+# Neural Network ML
+Multilayered backpropagation neural network developed with c++
 
 You must run the program on windows command prompt (win 10)
 - NeuralM.exe 0 for training mode
