@@ -1,4 +1,4 @@
-# NeuralNetworkML
+# Multiplayer Neural Network 
 Multilayered backpropagation neural network using c++
 
 You must run the program on windows command prompt (win 10)
