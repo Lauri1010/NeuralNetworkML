@@ -50,19 +50,6 @@ int main (int argc, char *argv[]){
 			 }
 
 		 }
-/*
-		 vector<vector<double>>inputData;
-		 inputData.push_back({1,1});
-		 inputData.push_back({1,0});
-		 inputData.push_back({0,1});
-		 inputData.push_back({0,0});
-
-		 vector<vector<double>>idealData;
-		 idealData.push_back({0});
-		 idealData.push_back({1});
-		 idealData.push_back({1});
-		 idealData.push_back({0});*/
-
 
 		 vector<vector<double>>inputData;
 		 inputData.push_back({0.10000,0.10000,0.20000});
@@ -149,7 +136,7 @@ int main (int argc, char *argv[]){
 			  outfile.close();
 
 			  nn=0;
-			 // streamOut.write(reinterpret_cast< const char * >(&nn),sizeof(NeuralNetwork));
+
 		 }else if(param==1){
 			 NeuralNetwork * nn = new NeuralNetwork(neuralMap,inputData,idealData,learningRate,momentum,train,cutoff,av,mCutoff);
 			 nn->createNetwork();
