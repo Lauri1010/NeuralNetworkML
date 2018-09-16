@@ -2,7 +2,7 @@
 // Name        : Neuralm.cpp
 // Author      : Lauri Turunen
 // Version     :
-// Copyright   : 
+// Copyright   : Lauri Turunen
 // Description :
 //============================================================================
 
