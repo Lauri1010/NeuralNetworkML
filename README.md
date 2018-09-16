@@ -12,4 +12,4 @@ Basic installation instructions:
 - Install cygwin: https://www3.ntu.edu.sg/home/ehchua/programming/howto/EclipseCpp_HowTo.html
   MAKE sure you download all dependencies. 
   
-  Compiled with windows Cygwin library 
+  Compiled with windows Cygwin libraries 
