@@ -8,7 +8,9 @@ You must run the program on windows command prompt (win 10)
 Note generating the training set may take several hours. The training set is saved to a binary file and then read for the prediction.
 
 Compiling the code (adjust to fit). 
+
 g++ -O3 -Wall -c -fmessage-length=0 -fopenmp -MMD -MP -MF"src/neuralm.d" -MT"src/neuralm.o" -o "src/neuralm.o" "../src/neuralm.cpp"
+
 g++ -fopenmp -o "NeuralM.exe"  ./src/neuralm.o   
 
 Basic installation instructions: 
