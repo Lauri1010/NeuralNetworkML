@@ -12,11 +12,5 @@ Note generating the training set may take several hours. The training set is sav
 - Install cygwin: https://www3.ntu.edu.sg/home/ehchua/programming/howto/EclipseCpp_HowTo.html
   MAKE sure you download all dependencies. 
   
-  Compiled with windows Cygwin libraries 
+  Compiled with windows Cygwin librarie. Note that this requires -fopenmp even though its not used
   
-  
-# Compiling the code example 
-
-g++ -O3 -Wall -c -fmessage-length=0 -fopenmp -MMD -MP -MF"src/neuralm.d" -MT"src/neuralm.o" -o "src/neuralm.o" "../src/neuralm.cpp"
-
-g++ -fopenmp -o "NeuralM.exe"  ./src/neuralm.o   
