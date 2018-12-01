@@ -41,9 +41,9 @@ public:
 #define throw_line(arg) throw my_exception(arg, __FILE__, __LINE__);
 using namespace std;
 
-double fRand(double fMax,double fMin)
+long double fRand(long double fMax,long double fMin)
 {
-    double f = (double)rand() / RAND_MAX;
+    long double f = (long double)rand() / RAND_MAX;
     return fMin + f * (fMax - fMin);
 }
 
@@ -51,18 +51,18 @@ class ActivationFunction{
 	public:
 	ActivationFunction(){};
 	virtual ~ActivationFunction(){delete this;};
-	virtual double activationOutput(double d) = 0;
-	virtual double dFunction(double d) = 0;
+	virtual long double activationOutput(long double d) = 0;
+	virtual long double dFunction(long double d) = 0;
 };
 
 class ActivationFunctionLinear final: public ActivationFunction{
 	public:
 	ActivationFunctionLinear(){};
 	~ActivationFunctionLinear(){delete this;};
-	double activationOutput(double d){
+	long double activationOutput(long double d){
 		return d;
 	}
-	double dFunction(double d){
+	long double dFunction(long double d){
 		return 1;
 	}
 };
@@ -72,10 +72,10 @@ class ActivationFunctionTanh final: public ActivationFunction{
 	public:
 	ActivationFunctionTanh(){};
 	~ActivationFunctionTanh(){delete this;};
-	double activationOutput(double d){
+	long double activationOutput(long double d){
 		return (exp(d*2.0)-1.0)/(exp(d*2.0)+1.0);
 	}
-	double dFunction(double d){
+	long double dFunction(long double d){
 		return 1.0-pow(activationOutput(d), 2.0);
 	}
 };
@@ -84,13 +84,13 @@ class ActivationFunctionSigmoid final: public ActivationFunction{
 	public:
 	ActivationFunctionSigmoid(){};
 	~ActivationFunctionSigmoid(){delete this;};
-	double activationOutput(double d){
-		   double e = exp(d)*9;
-	       return 1.0/(1.0+e);
+	long double activationOutput(long double d){
+		   long double e = exp(d)*9;
+	       return - 1.0/(1.0+e);
 	}
-	double dFunction(double d){
-		double e = exp(d);
-		return e/((1.0+e)*(1.0+e));
+	long double dFunction(long double d){
+		long double e = exp(d);
+		return - e/((1.0+e)*(1.0+e));
 	}
 };
 
@@ -98,11 +98,11 @@ class ActivationFunctionRectifiedRelu final: public ActivationFunction{
 	public:
 	ActivationFunctionRectifiedRelu(){};
 	~ActivationFunctionRectifiedRelu(){delete this;};
-	double activationOutput(double d){
-		d=max(d,0.0);
+	long double activationOutput(long double d){
+		if(d<0){d=0;}
 		return d;
 	}
-	double dFunction(double d){
+	long double dFunction(long double d){
 		if(d<0){d=0;}else if(d>=0){d=1;};
 		return d;
 	}
@@ -112,11 +112,44 @@ class ActivationFunctionSoftPlus final: public ActivationFunction{
 	public:
 	ActivationFunctionSoftPlus(){};
 	~ActivationFunctionSoftPlus(){delete this;};
-	double activationOutput(double d){
+	long double activationOutput(long double d){
 		return log(1+pow(d,2));
 	}
-	double dFunction(double d){
+	long double dFunction(long double d){
 		return 1/(1+pow(d,2));
+	}
+};
+
+class ActivationFunctionSin final: public ActivationFunction{
+	public:
+	ActivationFunctionSin(){};
+	~ActivationFunctionSin(){delete this;};
+	long double activationOutput(long double d){
+		return sin(d);
+	}
+	long double dFunction(long double d){
+		return cos(d);
+	}
+};
+
+class ActivationFunctionSinc final: public ActivationFunction{
+	public:
+	ActivationFunctionSinc(){};
+	~ActivationFunctionSinc(){delete this;};
+	long double activationOutput(long double d){
+		if(d==0){
+			return 1;
+		}else{
+			return (sin(d)/d);
+		};
+	}
+	long double dFunction(long double d){
+		if(d==0){
+			return (sin(d)/d);
+		}else{
+			return (cos(d)/d)-(sin(d)/d);
+		}
+
 	}
 };
 
@@ -126,13 +159,14 @@ class Input{
 	int fromNeuron;
 	int fromLayer;
 	int toLayer;
-	double errorSumIn;
-	double delta;
-	double weight;
-	double pWeight;
-	double inputValue;
-	double wi;
-	double wim;
+	long double errorSumIn;
+	long double delta;
+	long double weight;
+	long double pWeight;
+	long double inputValue;
+	long double wi;
+	long double wim;
+	long double bias;
 	Input(int layer,int fromNeuron){
 		this->fromLayer=layer-1;
 		this->toLayer=layer;
@@ -144,63 +178,73 @@ class Input{
 		// this->weight = this->wi * fRand(this->wi*2.4,this->wi*2) - this->wim;
 		// this->weight=0.4+fRand(0.15,0.1)+fRand(0.13,0.1)+fRand(0.12,0.1);
 	    // this->weight=fRand(0.1,0.04)+fRand(0.007,0.004)+0.01;
-		// this->weight=0.05+fRand(0.045,0.038);
+		// this->weight=0.01;
 		// this->weight=fRand(0.65,0.33)+0.2;
-		// this->weight=fRand(0.35,0.3)+fRand(0.15,0.09)+fRand(0.05,0.02)+0.015;
-		this->weight=0.05;
-		// this->weight=0.5+fRand(0.45,0.01);
+		this->weight=fRand(0.00055,0.004487)+fRand(0.00015,0.0135)+fRand(0.00005,0.0004)+0.000015;
+		// this->weight=fRand(0.05,0.04995);
+		// this->weight=0.01;
 		this->pWeight= this->weight;
 		this->inputValue=0.0;
-
+		this->bias=0.01;
 	}
 	void resetValues(){
 		this->errorSumIn=0;
 		this->inputValue=0;
 	}
-	double setInput(double input){
-		double iv=this->weight*input;
+	long double setInput(long double input){
+		long double iv=this->weight*input;
 		this->inputValue=iv;
 		return iv;
 	}
-	void setInputUw(double input){
-		this->inputValue=input;
+	long double setInputUw(long double input){
+/*		this->weight=input/(((input-1)/input)*-1)*(1+input);
+		long double iv=this->weight*input;*/
+		long double iv=1;
+		this->inputValue=iv;
+		return iv;
 	}
-	double getWeight(){
+	long double getWeight(){
 		return this->weight;
 	}
-	void sumError(double error){
+	void sumError(long double error){
 		this->errorSumIn+=error;
 	}
-	void sumDelta(double delta){
+
+	void sumBias(long double bv){
+			this->bias+=bv;
+	}
+	void sumDelta(long double delta){
 		this->delta+=delta;
 	}
-	double calcWeightResult(){
+
+	long double calcWeightResult(){
 		return this->inputValue*this->weight;
 	}
-	double getInput(){
+	long double getInput(){
 		return this->inputValue;
 	}
 	int getFrom(){
 		return this->fromNeuron;
 	}
 
-	void adjustWeights(double learningRate,double momentum,bool ei){
-		double a=this->weight;
-
+	void adjustWeights(long double learningRate,long double momentum,bool ei){
+		long double a=this->weight;
 		if(ei){
-			learningRate*=10.5;
-			momentum*=0.01;
+			this->weight += fRand(0.00000000001, 0.000000000001);
 		}
-		this->weight += learningRate*this->errorSumIn+(this->delta*momentum);
-
+		this->weight += this->errorSumIn+this->bias+(momentum*(this->weight-this->pWeight));
+		// this->weight += this->errorSumIn;
+		// this->weight += this->errorSumIn+this->bias;
+		// this->weight += this->errorSumIn+this->bias+momentum*this->pWeight;
 		this->delta=0;
+		this->bias=0;
 		this->errorSumIn=0;
 		this->pWeight=a;
 	}
 
-	/*void adjustWeights(double learningRate,double momentum,bool ei){
-			double a=this->weight;
-			// double di=0.001;
+	/*void adjustWeights(long double learningRate,long double momentum,bool ei){
+			long double a=this->weight;
+			// long double di=0.001;
 			this->weight += learningRate*this->errorSumIn;
 			this->delta=0;
 			this->errorSumIn=0;
@@ -211,24 +255,25 @@ class Input{
 
 class Neuron{
 	 public:
-	 double inputSum;
-	 double outputSum;
+	 long double inputSum;
+	 long double outputSum;
 	 int layer;
+	 bool outputLayer;
 	 int id;
 	 bool func;
-	 double wInput;
-	 double delta;
+	 long double wInput;
+	 long double delta;
 	 int inputs;
-	 double finalOutputError;
-	 double ao;
+	 long double finalOutputError;
+	 long double ao;
 	 vector<unique_ptr<Input>> in;
 	 unique_ptr<ActivationFunction> af;
-	 double weightSum;
-	 double errorSumAbs;
-	 double currentInputSum;
-	 double currentWeightSum;
+	 long double weightSum;
+	 long double errorSumAbs;
+	 long double currentInputSum;
+	 long double currentWeightSum;
 
-	 Neuron(int id,int layer,int inputs,int func,bool pl){
+	 Neuron(int id,int layer,int inputs,int func,bool pl,bool pl2){
 		 this->inputSum=0;
 		 this->currentInputSum=0;
 		 this->outputSum=0;
@@ -243,6 +288,7 @@ class Neuron{
 		 this->weightSum=0;
 		 this->currentWeightSum=0;
 		 this->finalOutputError=0;
+		 this->outputLayer=false;
 		 if(func==0){
 			 this->af=make_unique<ActivationFunctionSoftPlus>();
 		 }else if(func==1){
@@ -251,7 +297,9 @@ class Neuron{
 			 }else if(layer==2){
 				 this->af=make_unique<ActivationFunctionSoftPlus>();
 			 }else if(pl){
-				 this->af=make_unique<ActivationFunctionTanh>();
+				 this->af=make_unique<ActivationFunctionSoftPlus>();
+			 }else if(pl2){
+				 this->af=make_unique<ActivationFunctionSoftPlus>();
 			 }else{
 				 this->af=make_unique<ActivationFunctionSoftPlus>();
 			 }
@@ -264,10 +312,11 @@ class Neuron{
 				 this->af=make_unique<ActivationFunctionSoftPlus>();
 			 }*/
 		 }else if(func==2){
+			 this->outputLayer=true;
 			 this->af=make_unique<ActivationFunctionLinear>();
 		 }
 	 };
-	 void setErrorSumAbs(double es){
+	 void setErrorSumAbs(long double es){
 		 this->errorSumAbs=es;
 	 }
 
@@ -279,10 +328,10 @@ class Neuron{
 		 this->ao=this->af->activationOutput(this->currentInputSum);
 	 }
      // this->neurons.at(c)->finalOutput(this->idealData.at(dataLocation).at(oDataLoc),this->it,oDataLoc,showOutput,this->totalReturnValue);
-	 void finalOutput(double expected,int iteration, int olocation,bool showOutput,double& eSum){
+	 void finalOutput(long double expected,int iteration, int olocation,bool showOutput,double& eSum){
 		 try{
 			 // this->setErrorSubAbs(expected-this->activationOutput);
-			 double es=sqrt(pow(expected-this->ao,2));
+			 long double es=sqrt(pow(expected-this->ao,2));
 			 this->setErrorSumAbs(es);
 			 eSum+=es;
 			 // cout << "Iteration: " << iteration << " Error at"<< olocation << " : "<< rError <<endl;
@@ -295,7 +344,7 @@ class Neuron{
 		 }
 	 }
 
-	 double getOutputStatic(){
+	 long double getOutputStatic(){
 		 return this->ao;
 	 }
 
@@ -315,12 +364,17 @@ class Neuron{
 			 exit(EXIT_FAILURE);
 		 }
 	 }
-	 void setInput(int index,int fromCheck,double input){
+	 void setInput(int index,int fromCheck,long double input,bool first){
 		 try{
 				 if(this->in.at(index)->fromNeuron==fromCheck){
+					 if(first){
+						 this->currentInputSum=0;
+						 this->currentWeightSum=0;
+						 this->inputSum=0;
+						 this->weightSum=0;
+					 }
 					 if(this->layer==0){
-						 this->in.at(index)->setInputUw(input);
-						 this->currentInputSum+=input;
+						 this->currentInputSum+=this->in.at(index)->setInputUw(input);
 					 }else{
 						 this->currentInputSum+=this->in.at(index)->setInput(input);
 						 this->currentWeightSum+=this->in.at(index)->weight;
@@ -335,52 +389,56 @@ class Neuron{
 		 }
 	 }
 
-	 void outputNeuronCalcError(int inputIndex,unique_ptr<Neuron> &pNeuron,double lRate,double momentum,bool eInc){
-		 try{
-			if(this->in.at(inputIndex)->fromNeuron==pNeuron->id){
-				double delta=this->errorSumAbs*af->dFunction(this->currentInputSum);
-				double error=delta*lRate*pNeuron.get()->ao;
-				this->in.at(inputIndex)->sumDelta(delta);
-				this->in.at(inputIndex)->sumError(error);
-			}else{
-				throw new string("Improperly setup backwards propagation");
-				exit(EXIT_FAILURE);
-			}
-		 }catch (const std::exception& ex) {
-			 throw_line(ex.what());
-			 exit(EXIT_FAILURE);
-		 }
-	 }
-	 void hiddenNeuronCalcError(int inputIndex,int cnliIn,unique_ptr<Neuron> &pNeuron,unique_ptr<Neuron> &nNeuron,double lRate,double momentum,bool eInc){
-		 try{
-			 int pNeuronFromNeuron=this->in.at(inputIndex)->fromNeuron;
-			 int nFromNeuron=nNeuron.get()->in.at(cnliIn)->fromNeuron;
-			 if(pNeuronFromNeuron==pNeuron->id && nFromNeuron==this->id){
-				 double delta=(nNeuron.get()->in.at(cnliIn)->delta*this->currentWeightSum*this->af->dFunction(this->currentInputSum))*-1;
-				 // double delta=nNeuron.get()->in.at(cnliIn)->delta*this->currentWeightSum*this->af->dFunction(this->currentInputSum);
-				 double error=delta*lRate*pNeuron->getOutputStatic();
-				 this->in.at(inputIndex)->sumDelta(delta);
-				 this->in.at(inputIndex)->sumError(error);
-			 }else{
-				 throw_line("Inputs don't match");
-			 	exit(EXIT_FAILURE);
+	 void outputNeuronCalcError(int inputIndex,unique_ptr<Neuron> & pNeuron,long double lRate,long double momentum,bool eInc,long double bias){
+			 try{
+				if(this->in.at(inputIndex)->fromNeuron==pNeuron->id){
+					if(eInc){lRate*=50;};
+					long double delta=this->errorSumAbs*af->dFunction(this->currentInputSum);
+					long double error=delta*lRate*pNeuron.get()->ao;
+					long double bv=delta*lRate*bias;
+					this->in.at(inputIndex)->sumDelta(delta);
+					this->in.at(inputIndex)->sumBias(bv);
+					this->in.at(inputIndex)->sumError(error);
+				}else{
+					throw new string("Improperly setup backwards propagation");
+					exit(EXIT_FAILURE);
+				}
+			 }catch (const std::exception& ex) {
+				 throw_line(ex.what());
+				 exit(EXIT_FAILURE);
 			 }
-		 }catch (const std::exception& ex) {
-			 throw_line(ex.what());
-			 exit(EXIT_FAILURE);
 		 }
-	 }
+		 void hiddenNeuronCalcError(int inputIndex,int cnliIn,unique_ptr<Neuron> & pNeuron,unique_ptr<Neuron> & nNeuron,long double lRate,long double momentum,bool eInc,long double bias){
+			 try{
+				 int pNeuronFromNeuron=this->in.at(inputIndex)->fromNeuron;
+				 int nFromNeuron=nNeuron.get()->in.at(cnliIn)->fromNeuron;
+				 if(pNeuronFromNeuron==pNeuron->id && nFromNeuron==this->id){
+					 if(eInc){lRate*=50;};
+					 long double delta=fabs((nNeuron.get()->in.at(cnliIn)->delta*this->currentWeightSum*this->af->dFunction(this->currentInputSum))*-1);
+					 // long double delta=nNeuron.get()->in.at(cnliIn)->delta*this->currentWeightSum*this->af->dFunction(this->currentInputSum);
+					 long double error=delta*lRate*pNeuron->getOutputStatic();
+					 long double bv=delta*lRate*bias;
+					 this->in.at(inputIndex)->sumDelta(delta);
+					 this->in.at(inputIndex)->sumBias(bv);
+					 this->in.at(inputIndex)->sumError(error);
+				 }else{
+					 throw_line("Inputs don't match");
+				 	exit(EXIT_FAILURE);
+				 }
+			 }catch (const std::exception& ex) {
+				 throw_line(ex.what());
+				 exit(EXIT_FAILURE);
+			 }
+		 }
 
 
-	 double getDelta(){
+	 long double getDelta(){
 		 return this->delta;
 	 }
 
 	 void setNewIterationValues(){
 		 this->currentInputSum=0;
 		 this->currentWeightSum=0;
-		 this->inputSum=0;
-		 this->weightSum=0;
 		 /*
 	  	 for(unsigned int c=0;c<this->in.size();c++){
 	    	this->in.at(c)->resetValues();
@@ -399,9 +457,9 @@ class Neuron{
 class NeuralNetwork{
 	  public:
 	  vector<vector<int>> neuronMap;
-	  vector<vector<double>> inputData;
+	  vector<vector<long double>> inputData;
 	  int inputDataLenght;
-	  vector<vector <double>> idealData;
+	  vector<vector <long double>> idealData;
 	  vector<vector<int>> layers;
 	  int layerSize;
 	  int idealDataLenght;
@@ -410,31 +468,38 @@ class NeuralNetwork{
 	  int inputDataSize;
 	  int inputDataSizeM;
 	  int it;
+	  int sample;
 	  double totalReturnValue;
 	  double totalReturnValueP;
+	  double totalReturnValuePR;
 	  int mCutoff;
-	  double totalOutput;
-	  double errorPercentage;
-	  double bestErrorRate;
-	  double currentErrorValue;
-	  double currentOutputSum;
+	  double pCutoff;
+	  long double totalOutput;
+	  long double errorPercentage;
+	  long double bestErrorRate;
+	  long double currentErrorValue;
+	  long double currentOutputSum;
 	  double learningRate;
 	  double oLearningRate;
 	  double maxLearningRate;
 	  double minLearningRate;
 	  bool eIncreasing;
 	  int eIncreasingCount;
+	  bool eStalling;
 	  double momentum;
 	  double oMomentum;
 	  double minMomentum;
-	  int eIncreaseCount;
 	  bool train;
 	  vector<unique_ptr<Neuron>> neurons;
 	  int neuronsVSize;
 	  int neuronsVSizeM;
 	  double nDivider;
 	  double cutoffErrorRate;
-	  NeuralNetwork(vector<vector<int>> neuronMap,vector<vector<double>> inputData,vector<vector<double>> idealData,double learningRate,double momentum,bool train,double cErrorRate,int mcf){
+	  int sampleMax;
+	  int sampleMin;
+	  int aSample;
+
+	  NeuralNetwork(vector<vector<int>> neuronMap,vector<vector<long double>> inputData,vector<vector<long double>> idealData,double learningRate,double momentum,bool train,double cErrorRate,int mcf,double cmcf,int sampleMax,int sampleMin){
 		  cout.precision(10);
 		  this->neuronMap=neuronMap;
 		  this->neuronMapSize=neuronMap.size();
@@ -450,14 +515,19 @@ class NeuralNetwork{
 		  this->momentum=momentum;
 		  this->oMomentum=momentum;
 		  this->mCutoff=mcf;
+		  this->pCutoff=cmcf;
+		  this->sampleMax=sampleMax;
+		  this->sampleMin=sampleMin;
+		  this->sample=sample;
 		  this->minMomentum=this->momentum/10000;
 		  this->eIncreasing=false;
 		  this->eIncreasingCount=0;
-		  this->eIncreaseCount=0;
+		  this->eStalling=false;
 		  this->train=train;
 		  this->it=0;
 		  this->totalReturnValue=0;
 		  this->totalReturnValueP=this->totalReturnValue;
+		  this->totalReturnValuePR=this->totalReturnValue;
 		  this->errorPercentage=0;
 		  this->totalOutput=0;
 		  this->bestErrorRate=0;
@@ -470,6 +540,7 @@ class NeuralNetwork{
 		  this->neuronsVSizeM=0;
 		  this->cutoffErrorRate=cErrorRate;
 		  this->layerSize=0;
+		  this->aSample=0;
 	  }
 
 	  void resetNetworkForLoaded(){
@@ -478,7 +549,6 @@ class NeuralNetwork{
 		  this->idealDataLenght=idealData.size();
 		  this->eIncreasing=false;
 		  this->eIncreasingCount=0;
-		  this->eIncreaseCount=0;
 		  this->train=false;
 		  this->it=0;
 		  this->totalReturnValue=0;
@@ -506,11 +576,12 @@ class NeuralNetwork{
 		    	 int layer=0;
 		    	 int func=0;
 		    	 bool pl=false;
+		    	 bool pl2=false;
 				 while(layer<this->neuronMapSize){
 					 	     if(layer==1){func++;};
 					 	     if(layer==this->neuronMapSizeM){func++;};
 					 	 	 for(int i=0;i<neuronMap.at(layer).at(0);i++){
-						 	 	 this->neurons.push_back(make_unique<Neuron>(id,layer,neuronMap.at(layer).at(1),func,pl));
+						 	 	 this->neurons.push_back(make_unique<Neuron>(id,layer,neuronMap.at(layer).at(1),func,pl,pl2));
 					 			 id++;
 					 			 indx++;
 					 	 	 }
@@ -520,6 +591,11 @@ class NeuralNetwork{
 					 	 	 layer++;
 					 	 	 if(layer==this->neuronMapSizeM-1){
 					 	 		pl=true;
+					 	 	 }
+					 	 	 if(this->neuronMapSizeM>2){
+								 if(layer==this->neuronMapSizeM-2){
+									pl2=true;
+								 }
 					 	 	 }
 				 }
 			     this->neuronsVSize=this->neurons.size();
@@ -542,82 +618,97 @@ class NeuralNetwork{
 
 	  }
 
-	  /*
+
 	  void iterate(){
-		  if(this->train){
+		while(this->it<this->mCutoff){
+				 	int sample=rand() % sampleMax + sampleMin;
+				 	this->lRun(false,sample);
+		}
+	  }
 
-			  while(this->it < this->cutoff && this->totalReturnValue>this->cutoffErrorRate){
-					  this->checkDataAndCleanUp();
-					  this->iteration(false);
-					  if(this->totalReturnValue==0 && this->it > 0){
-						  break;
-					  }
-					  this->it++;
-			  }
+	  void pRun(bool mt){
+		 if(mt){
 
-			  this->totalReturnValue=0;
+		 }else{
+			 bool first=true;
+			 for(int dataLocation=0;dataLocation<this->inputDataSize;dataLocation++){
+			 		this->feedForward(true,first,dataLocation);
+			 		first=false;
+			 }
+		 }
 
-		  }else{
-			  this->iteration(true);
-		  }
-	  }*/
-
-	  void iteration(bool predict,int iteration,bool mt, bool suppress){
+	  }
+	  void lRun(bool mt, int sample){
 		  try{
-			  	 this->it=iteration;
-
 			  	 if(mt){
-			  		 /*
-					 int dataLocation=0;
-					 int mxth=omp_get_max_threads();
-					 while(dataLocation<this->inputDataSize){
-						 #pragma omp parallel
-						 {
-							if(dataLocation<this->inputDataSize){
-									int tn=omp_get_thread_num();
-									if(tn < mxth){
-										// #pragma omp single
-										#pragma omp critical
-										this->feedForward(predict,dataLocation);
-									}
-								#pragma omp atomic
-								dataLocation++;
-								// cout << "Iteration: "<< dataLocation;
-							}else{
-								#pragma omp barrier
-							}
-						 }
-					 }*/
-			  		/*
-			  		omp_set_dynamic(0);
-			  		omp_set_num_threads(2);
-					#pragma omp parallel
-					{
-						#pragma omp for schedule(static)
-			  			for(int dataLocation=0;dataLocation<this->inputDataSize;dataLocation++){
-			  						  			this->feedForward(predict,dataLocation);
-			  									this->backPropagate();
-			  									this->learn();
-			  									this->resetNeurons();
-			  			}
-			  			this->checkDataAndCleanUp(suppress);
-					}*/
 
 			  	 }else{
-			  		for(int dataLocation=0;dataLocation<this->inputDataSize;dataLocation++){
-			  			this->feedForward(predict,dataLocation);
-			  			if(!predict){
-			  				this->backPropagate();
-			  			}
-			  			this->resetNeurons();
-			  		}
-			  		if(!predict){
-			  			this->learn();
-			  		}
-			  		this->checkDataAndCleanUp(suppress);
+
+						int rLoc=rand()%(this->inputDataSize-sample-0 + 1) + 0;
+						int rLoco=rLoc;
+						int cutoff=rLoc+sample;
+						long double bias=0.00L;
+//						long double cycles=10.0;
+//						long double heat=50;
+						int ix=0;
+						int iCutoff=3;
+						int mdCutoff=300;
+						int d=0;
+						int maxCutoff=3;
+						int m=0;
+						bool cn=true;
+
+						do{
+								rLoc=rLoco;
+								while(rLoc<cutoff){
+												this->feedForward(false,true,rLoc);
+												this->backPropagate(bias);
+												this->learn();
+												rLoc++;
+								}
+								cn=this->checkDataAndCleanUp(sample,false);
+								ix++;
+						}while(ix<iCutoff && cn);
+
+						do{
+							rLoc=rLoco;
+							while(rLoc<cutoff){
+											this->feedForward(false,true,rLoc);
+											this->backPropagate(bias);
+											this->learn();
+											rLoc++;
+							}
+							cn=this->checkDataAndCleanUp(sample,false);
+							d++;
+						}while(!this->eIncreasing && d<mdCutoff && cn);
+
+						do{
+							rLoc=rLoco;
+							while(rLoc<cutoff){
+											this->feedForward(false,true,rLoc);
+											this->backPropagate(bias);
+											this->learn();
+											rLoc++;
+							}
+							cn=this->checkDataAndCleanUp(sample,false);
+							bias+=10;
+							m++;
+						}while(this->eIncreasing && m<maxCutoff && cn);
+
+/*						if(!this->eIncreasing){
+							if(this->totalReturnValuePR >= 0.4){
+								cycles=20+20.0*((long double)this->it/(long double)this->mCutoff);
+								heat=100+(100.0*((long double)this->it/(long double)this->mCutoff));
+								this->runAnnealing(rLoc, cutoff, heat, cycles,false,this->totalReturnValueP, sample, bias);
+							}else if(this->totalReturnValuePR >= 0.25){
+								cycles+=10.0*((long double)this->it/(long double)this->mCutoff);
+								heat+=50.0*((long double)this->it/(long double)this->mCutoff);
+								this->runAnnealing(rLoc, cutoff, heat, cycles,false,this->totalReturnValueP, sample, bias);
+							}
+						}*/
+
 
 			  	 }
-
 
 		  }catch (const std::exception& ex) {
 				 throw_line(ex.what());
@@ -626,26 +717,25 @@ class NeuralNetwork{
 
 	  }
 
-
-	  void setLearningRate(double lr){
-
-	  }
-	  void setMomentum(double sm){
+	  void setLearningRate(long double lr){
 
 	  }
-	  void iLearningRate(double il){
+	  void setMomentum(long double sm){
 
 	  }
-	  void iMomentum(double im){
+	  void iLearningRate(long double il){
 
 	  }
-	  void dLearningRate(double dl){
+	  void iMomentum(long double im){
 
 	  }
-	  void dMomentum(double dm){
+	  void dLearningRate(long double dl){
 
 	  }
-	  void dLearningRateGradual(double limit){
+	  void dMomentum(long double dm){
+
+	  }
+	  void dLearningRateGradual(long double limit){
 
 	  }
 
@@ -653,25 +743,27 @@ class NeuralNetwork{
 
 	  }
 
-	  void feedForward(bool showOutput,int dataLocation){
+	  void feedForward(bool showOutput,bool first,int dataLocation){
 		 try{
 			 if(dataLocation<this->inputDataLenght){
-				  int ifi=0;
 				  int oDataLoc=0;
-
+				  int layer;
+				  int ifi=0;
+				  int dLocc=0;
 					 for(int c=0;c<this->neuronsVSize;c++){
-							int layer=this->neurons.at(c)->layer;
+							layer=this->neurons.at(c)->layer;
 							if(layer==0){
-								this->neurons.at(c)->setInput(0,-1, this->inputData.at(dataLocation).at(ifi));
+								this->neurons.at(c)->setInput(0,-1, this->inputData.at(dataLocation).at(ifi),first);
 								ifi++;
 							}else if(layer>0){
 									int i=0;
 									for(int ix=layers.at(layer-1).at(0);ix<layers.at(layer-1).at(1);ix++){
-										this->neurons.at(c)->setInput(i,ix,this->neurons.at(ix)->getOutputStatic());
+										this->neurons.at(c)->setInput(i,ix,this->neurons.at(ix)->getOutputStatic(),first);
 										i++;
 									}
 
 							}
+							dLocc++;
 							this->neurons.at(c)->aOutput();
 							if(layer==this->neuronMapSizeM){
 								this->neurons.at(c)->finalOutput(this->idealData.at(dataLocation).at(oDataLoc),this->it,oDataLoc,showOutput,this->totalReturnValue);
@@ -685,7 +777,7 @@ class NeuralNetwork{
 		 }
 	  }
 
-	  void backPropagate(){
+	  void backPropagate(long double bias){
 		  try{
 			  int cNeuronIndex=this->neuronsVSizeM;
 
@@ -696,7 +788,7 @@ class NeuralNetwork{
 							  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
 
 							  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0 && previousNeuronId>-1;pi--,previousNeuronId--){
-									  this->neurons.at(cNeuronIndex)->outputNeuronCalcError(pi, this->neurons.at(previousNeuronId), this->learningRate, this->momentum, this->eIncreasing);
+									  this->neurons.at(cNeuronIndex)->outputNeuronCalcError(pi, this->neurons.at(previousNeuronId), this->learningRate, this->momentum, this->eIncreasing,bias);
 							  };
 							 // Move on to next neuron
 							 cNeuronIndex--;
@@ -714,7 +806,7 @@ class NeuralNetwork{
 							  do{
 								  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
 								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0 && previousNeuronId>-1;pi--,previousNeuronId--){
-										  this->neurons.at(cNeuronIndex)->hiddenNeuronCalcError(pi,nlin,this->neurons.at(previousNeuronId),this->neurons.at(nextLayerNeuronId),this->learningRate,this->momentum,this->eIncreasing);
+										  this->neurons.at(cNeuronIndex)->hiddenNeuronCalcError(pi,nlin,this->neurons.at(previousNeuronId),this->neurons.at(nextLayerNeuronId),this->learningRate,this->momentum,this->eIncreasing,bias);
 								  };
 								  nextLayerNeuronId--;
 								  nLayerCount++;
@@ -754,19 +846,6 @@ class NeuralNetwork{
 	  }
 
 	  void calcFinalError(){
-		  /*
-		  int cNeuronIndex=this->neuronsVSizeM;
-		  int layer=this->neurons.at(cNeuronIndex)->layer;
-		  while(layer==this->neuronMapSizeM){
-			  	  if(layer==this->neuronMapSizeM){
-					 this->neurons.at(cNeuronIndex)->errorSumAbs=0;
-			  	  }else{
-			  		  break;
-			  	  }
-				  cNeuronIndex--;
-				  layer=this->neurons.at(cNeuronIndex)->layer;
-		  };*/
-
 		  cout << "Iteration: "<< this->it << " Final deviation from ideal results "<< this->totalReturnValue << endl;
 	  }
 
@@ -785,117 +864,105 @@ class NeuralNetwork{
 
 	  }
 
-	  void checkDataAndCleanUp(bool suppress){
-			this->learningRate=this->learningRate/(1+(this->it/this->mCutoff));
-
+	  bool checkDataAndCleanUp(int sample,bool suppress){
+			this->learningRate=this->learningRate/(1.0+((double)this->it/(double)this->pCutoff));
 		    if(this->totalReturnValueP>0){
 					  if((this->totalReturnValue < this->totalReturnValueP)){
 						this->eIncreasing=false;
 						this->eIncreasingCount=0;
 					  }else if((this->totalReturnValue > this->totalReturnValueP)){
 						this->eIncreasing=true;
-						// this->learningRate*=1.005;
+						this->eIncreasingCount++;
 					  }else if((this->totalReturnValue == this->totalReturnValueP)){
 						this->eIncreasing=true;
-						// this->learningRate*=1.005;
+						this->eIncreasingCount++;
+						this->eStalling=true;
 					  }
 		  	 }
-			 if(this->eIncreasing){
-				this->eIncreasingCount++;
-			 }
-
 			 this->totalReturnValueP=this->totalReturnValue;
-
-		     if(!suppress){
-					 cout << "Iteration: "<< this->it << " current deviation from ideal results: "<< this->totalReturnValue << endl;
+			 this->totalReturnValuePR=this->totalReturnValueP/(double)sample;
+			 if(!suppress){
+				 cout << "Iteration: "<< this->it << " current deviation from ideal results: "<< fabs(this->totalReturnValuePR) << endl;
+				 this->it++;
 			 }
 		     this->totalReturnValue=0;
-
+		     if(fabs(this->totalReturnValuePR) < fabs(this->cutoffErrorRate)){
+		    	 return false;
+		     }else{
+		    	 return true;
+		     }
 	  }
 
-/*	  void simulatedAnnealing(double heat,double cycles){
-		   double currentTemp=heat;
-		   double stoptemp=heat*0.65;
-		   double pError;
-		   double peError;
-	       double bpError;
-		   double ratio = exp(log(stoptemp / heat) / (cycles - 1));
-
-
-
-		  vector<unique_ptr<Neuron>> currentBestSet;
-		  copy(this->neurons.begin(),this->neurons.end(),back_inserter(currentBestSet));
-
-	  }*/
-
-
-
-
-};
-
-class SimulatedAnnealing{
-	public:
-	NeuralNetwork * cnb;
-
-
-	SimulatedAnnealing(NeuralNetwork * cn){
-		this->cnb=cn;
-	};
-
-	int runAnnealing(int i,double heat,double cycles,double oError){
-		double currentTemp=heat;
-		double stoptemp=heat*0.25;
-		double pError=oError;
-		double peError=oError;
-		double ratio = exp(log(stoptemp / heat) / (cycles - 1));
-		bool stop=false;
-		double stopRate=DBL_MAX;
-		double stopRatet=0.5;
-
-		do{
+	  void runAnnealing(int rLoc, int cutoff,long double heat,long double cycles,bool ca,long double oError,int sample,long double bias){
+			long double currentTemp=heat;
+			long double stoptemp=heat*0.02;
+			long double pError=oError;
+			long double ratio = exp(log(stoptemp / heat) / (cycles - 1));
+			bool stop=false;
+			long double stopRate=1000;
+			long double stopRatet=0.90;
+			int eLoc2=rLoc;
+			int ai=0;
+			// int ti=0;
 			int c=0;
+		    bool first=true;
+
 			do{
-				this->randomize(currentTemp,heat);
-				int ti=0;
+				c=0;
 				do{
-					peError=pError;
-					this->cnb->iteration(false, i, false,true);
-					pError=this->cnb->totalReturnValueP;
-					cout << "Annealing iteration: "<< i << " Deviation from ideal results: "<< pError << endl;
-					i++;
-					stopRate=pError/oError;
-					if(stopRate<stopRatet || pError <= this->cnb->cutoffErrorRate){
-						stop=true;
-					}
-					ti++;
-				}while(pError < peError && !stop);
-				c++;
-			}while(c < cycles && !stop);
+						this->randomize(currentTemp,heat);
+						while(rLoc<cutoff){
+								this->feedForward(false,first,rLoc);
+								first=false;
+								rLoc++;
+						}
+						first=true;
+						rLoc=eLoc2;
+						this->checkDataAndCleanUp(sample,true);
+						ai++;
+						pError=this->totalReturnValueP;
+						cout << "Annealing Iteration: "<< ai <<" deviation from ideal results: "<< fabs(this->totalReturnValuePR) << endl;
 
-			currentTemp *= ratio;
+						stopRate=pError/oError;
+						if(stopRate<stopRatet || pError <= this->cutoffErrorRate){
+							stop=true;
+						}
+						if(ca){
+							if(ai>8000000){
+								stop=true;
+							}
+						}
+						if(ai>10000000){
+							stop=true;
+						}
+					c++;
+				}while(c < cycles && !stop);
 
-		}while(currentTemp>stoptemp && !stop);
+				currentTemp *= ratio;
 
-		return i;
-	}
-
-	void randomize(double currentTemp,double startTemp){
-		int i=0;
-		int ns=cnb->neurons.size();
-		while(i<ns){
-			if(cnb->neurons.at(i)->layer>1){
-				int si=cnb->neurons.at(i)->in.size();
-				for(int c=0;c<si;c++){
-					double add = 0.000001 - fRand(0.0000003,0.0000001);
-					add /= startTemp;
-					add *= currentTemp;
-					cnb->neurons.at(i)->in.at(c)->weight+=add;
-				}
-			}
-			i++;
+			}while(currentTemp>stoptemp && !stop);
+			this->eIncreasingCount=0;
+			this->eIncreasing=false;
 		}
 
-	}
+		void randomize(long double currentTemp,long double startTemp){
+			int i=0;
+			int ns=this->neurons.size();
+			while(i<ns){
+				if(this->neurons.at(i)->layer>1){
+					int si=this->neurons.at(i)->in.size();
+					for(int c=0;c<si;c++){
+						long double add = 0.0000005 - fRand(0.0000003,0.0000001);
+						add /= startTemp;
+						add *= currentTemp;
+						this->neurons.at(i)->in.at(c)->weight+=add;
+					}
+				}
+				i++;
+			}
+
+		}
+
 
 };
 
