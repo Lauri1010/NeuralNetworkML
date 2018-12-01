@@ -37,8 +37,10 @@ int main (int argc, char *argv[]){
 		 }
 		 int param = atoi(argv[1]);
 
+		 // ActivationFunctionTanh * af=new ActivationFunctionTanh();
+
 		 clock_t begin = clock();
-		 int neurons[]={3,9,9,9,42,1};
+		 int neurons[]={3,20,20,20,20,1};
 		 // int neurons[]={2,3,3,3,1};
 		 vector<vector<int>>neuralMap;
 		 int nSize=sizeof(neurons)/sizeof(neurons[0]);
@@ -51,40 +53,30 @@ int main (int argc, char *argv[]){
 
 		 }
 
-		 vector<vector<double>>inputData;
-		 inputData.push_back({0.10000,0.11000,0.11000});
+		 vector<vector<long double>>inputData;
 		 inputData.push_back({0.101,0.16152,0.11196});
 		 inputData.push_back({0.108,0.13089,0.13335});
-		 inputData.push_back({0.103,0.10134,0.10459});
-		 inputData.push_back({0.109,0.1495,0.1552});
-		 inputData.push_back({0.125,0.15299,0.1466});
-		 inputData.push_back({0.136,0.18348,0.17438});
-		 inputData.push_back({0.137,0.15366,0.17261});
-		 inputData.push_back({0.138,0.14629,0.16507});
-		 inputData.push_back({0.129,0.17531,0.14881});
-		 inputData.push_back({0.135,0.10566,0.15649});
-		 inputData.push_back({0.111,0.12559,0.09955});
-		 inputData.push_back({0.112,0.11648,0.1295});
-		 inputData.push_back({0.113,0.14161,0.15677});
-		 inputData.push_back({0.119,0.15183,0.08472});
+		 int m=4000;
+		 for(int u=2;u<m;u++){
+			 long double ud=(long double)u;
+			 long double d1=abs(sin(((inputData.at(u-1).at(0)+inputData.at(u-2).at(0)+(0.1/ud))/2)+((0.01/(ud/m))*fRand(0.1, 0.005))+ud*0.01));
+			 long double d2=abs(sin(((inputData.at(u-1).at(1)+inputData.at(u-2).at(1)+(0.1/ud))/2)+((0.01/(ud/m))*fRand(0.07, 0.001))+ud*0.011));
+			 long double d3=abs(sin(((inputData.at(u-1).at(2)+inputData.at(u-2).at(2)+(0.1/ud))/2)+((0.01/(ud/m))*fRand(0.11, 0.007))+ud*0.0111));
+			 inputData.push_back({d1,d2,d3});
+		 }
+		 int iSize=inputData.size();
 
 
-		 vector<vector<double>>idealData;
-		 idealData.push_back({0.10667});
-		 idealData.push_back({0.124826});
-		 idealData.push_back({0.12408});
-		 idealData.push_back({0.102976});
-		 idealData.push_back({0.1379});
-		 idealData.push_back({0.14153});
-		 idealData.push_back({0.16462});
-		 idealData.push_back({0.154423});
-		 idealData.push_back({0.149786});
-		 idealData.push_back({0.15104});
-		 idealData.push_back({0.132383});
-		 idealData.push_back({0.112046});
-		 idealData.push_back({0.119326});
-		 idealData.push_back({0.137126});
-		 idealData.push_back({0.118516});
+		 vector<vector<long double>>idealData;
+
+		 for(int t=0;t<iSize;t++){
+			 // long double td=(long double)t;
+			 long double ival=((inputData.at(t).at(0)+inputData.at(t).at(1)+inputData.at(t).at(2))/3);
+/*			 long double ival2=abs(af->activationOutput(ival*0.0001));*/
+			 idealData.push_back({
+				 ival
+			 });
+		 }
 
 /*
 		 for (std::vector<int>::const_iterator i = neuralMap.begin(); i != neuralMap.end(); ++i)
@@ -95,39 +87,23 @@ int main (int argc, char *argv[]){
 		 }
 */
 
-		 double learningRate=0.000001;
-		 double momentum=0.0000001;
-		 int mCutoff=25000000;
-		 // int aCutoff=mCutoff/2;
+		 double learningRate=0.000014;
+		 double momentum=0.8;
+		 int mCutoff=2000000;
+		 double aCutoff=mCutoff-1000;
 		 bool train=true;
-		 double av=0.06;
+		 double av=0.035;
+/*		 long double bias=0.001;*/
+		 // int ar=0;
+		 // int sample=5;
+		 int sampleMax=5;
+		 int sampleMin=4;
 
 		 if(param==0){
-			 NeuralNetwork * nn = new NeuralNetwork(neuralMap,inputData,idealData,learningRate,momentum,train,av,mCutoff);
+			 NeuralNetwork * nn = new NeuralNetwork(neuralMap,inputData,idealData,learningRate,momentum,train,av,mCutoff,aCutoff,sampleMax,sampleMin);
 			 nn->createNetwork();
-			 double cHeat=1;
-			 double cycles=1;
-			 SimulatedAnnealing * sa = new SimulatedAnnealing(nn);
-			 bool final=false;
-			 for(int it=0;it < mCutoff;it++){
-				    nn->iteration(final,it,false,false);
-					if (nn->eIncreasing){
-						nn->learningRate*=1.0001;
-						nn->momentum=nn->momentum/2;
-						if(nn->eIncreasingCount>100000){
-							it=sa->runAnnealing(it,cHeat, cycles, nn->totalReturnValueP);
-							cHeat=cHeat+0.05;
-							cycles=cycles+0.05;
-						}
-					}else{
-						nn->learningRate*=0.9999;
-					}
-					if(nn->totalReturnValueP < av && nn->totalReturnValueP > 0 ){
-						break;
-					}
-
-			 }
-			 nn->iteration(true,0,false,false);
+			 nn->iterate();
+			 nn->pRun(false);
 			 std::ofstream outfile("network.dat", std::ios::binary);
 			 if (!outfile){
 				       cout << "Unable to open for reading.\n";
@@ -135,6 +111,8 @@ int main (int argc, char *argv[]){
 			  }
 			  int ns=nn->neurons.size();
 			  for(int prin=0;prin<ns;prin++){
+/*				  char* bBytes = reinterpret_cast<char*>(&bias);*/
+/*				  outfile.write(reinterpret_cast<const char*>(bBytes), sizeof(bBytes));*/
 				  outfile.write(reinterpret_cast<char*>(&nn->neurons.at(prin)->id), sizeof(int));
 				  outfile.write(reinterpret_cast<char*>(&nn->neurons.at(prin)->inputs), sizeof(int));
 				  outfile.write(reinterpret_cast<char*>(&nn->neurons.at(prin)->layer), sizeof(int));
@@ -149,12 +127,10 @@ int main (int argc, char *argv[]){
 				  }
 			  }
 			  outfile.close();
-
 			  nn=0;
-			  sa=0;
-
 		 }else if(param==1){
-			 NeuralNetwork * nn = new NeuralNetwork(neuralMap,inputData,idealData,learningRate,momentum,train,av,mCutoff);
+
+			 NeuralNetwork * nn = new NeuralNetwork(neuralMap,inputData,idealData,learningRate,momentum,train,av,mCutoff,1,sampleMax,sampleMin);
 			 nn->createNetwork();
 
 			 ifstream inFile("network.dat", ios::in|ios::binary);
@@ -164,6 +140,7 @@ int main (int argc, char *argv[]){
 			 }
 			  int ns=nn->neurons.size();
 			  for(int prin=0;prin<ns;prin++){
+/*				  inFile.read(reinterpret_cast<char*>(&bias),sizeof(&bias));*/
 				  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->id), sizeof(int));
 				  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->inputs), sizeof(int));
 				  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->layer), sizeof(int));
@@ -179,7 +156,7 @@ int main (int argc, char *argv[]){
 			  }
 
 			 nn->resetNeurons();
-			 nn->iteration(true,0,false,false);
+			 nn->pRun(false);
 			 nn=0;
 		 }
 		 clock_t end = clock();
