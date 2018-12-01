@@ -1,4 +1,4 @@
-# Multilayer Neural Network
+# Multilayer Neural Network Beta
 Multilayered backpropagation neural network developed with c++
 
 You must run the program on windows command prompt (win 10)
