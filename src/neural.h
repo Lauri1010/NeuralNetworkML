@@ -180,8 +180,8 @@ class Input{
 	    // this->weight=fRand(0.1,0.04)+fRand(0.007,0.004)+0.01;
 		// this->weight=0.01;
 		// this->weight=fRand(0.65,0.33)+0.2;
-		this->weight=fRand(0.00055,0.004487)+fRand(0.00015,0.0135)+fRand(0.00005,0.0004)+0.000015;
-		// this->weight=fRand(0.05,0.04995);
+		// this->weight=fRand(0.0015,0.001)+fRand(0.015,0.0135)+fRand(0.0005,0.004)+0.00015;
+		this->weight=fRand(0.05,0.04995);
 		// this->weight=0.01;
 		this->pWeight= this->weight;
 		this->inputValue=0.0;
@@ -230,7 +230,7 @@ class Input{
 	void adjustWeights(long double learningRate,long double momentum,bool ei){
 		long double a=this->weight;
 		if(ei){
-			this->weight += fRand(0.00000000001, 0.000000000001);
+			this->weight += fRand(0.000000001, 0.0000000001);
 		}
 		this->weight += this->errorSumIn+this->bias+(momentum*(this->weight-this->pWeight));
 		// this->weight += this->errorSumIn;
@@ -240,6 +240,16 @@ class Input{
 		this->bias=0;
 		this->errorSumIn=0;
 		this->pWeight=a;
+	}
+
+	void backupWeight(){
+		this->pWeight=this->weight;
+	}
+
+	void rollbackWeight(){
+		if(this->pWeight>0){
+			this->weight=this->pWeight;
+		}
 	}
 
 	/*void adjustWeights(long double learningRate,long double momentum,bool ei){
@@ -392,7 +402,7 @@ class Neuron{
 	 void outputNeuronCalcError(int inputIndex,unique_ptr<Neuron> & pNeuron,long double lRate,long double momentum,bool eInc,long double bias){
 			 try{
 				if(this->in.at(inputIndex)->fromNeuron==pNeuron->id){
-					if(eInc){lRate*=50;};
+					if(eInc){lRate*=500;};
 					long double delta=this->errorSumAbs*af->dFunction(this->currentInputSum);
 					long double error=delta*lRate*pNeuron.get()->ao;
 					long double bv=delta*lRate*bias;
@@ -413,9 +423,8 @@ class Neuron{
 				 int pNeuronFromNeuron=this->in.at(inputIndex)->fromNeuron;
 				 int nFromNeuron=nNeuron.get()->in.at(cnliIn)->fromNeuron;
 				 if(pNeuronFromNeuron==pNeuron->id && nFromNeuron==this->id){
-					 if(eInc){lRate*=50;};
+					 if(eInc){lRate*=40;};
 					 long double delta=fabs((nNeuron.get()->in.at(cnliIn)->delta*this->currentWeightSum*this->af->dFunction(this->currentInputSum))*-1);
-					 // long double delta=nNeuron.get()->in.at(cnliIn)->delta*this->currentWeightSum*this->af->dFunction(this->currentInputSum);
 					 long double error=delta*lRate*pNeuron->getOutputStatic();
 					 long double bv=delta*lRate*bias;
 					 this->in.at(inputIndex)->sumDelta(delta);
@@ -443,6 +452,12 @@ class Neuron{
 	  	 for(unsigned int c=0;c<this->in.size();c++){
 	    	this->in.at(c)->resetValues();
 	     }*/
+	 }
+
+	 void rollbackWeights(){
+		 for(unsigned int c=0;c<this->in.size();c++){
+		 	    	this->in.at(c)->rollbackWeight();
+		 }
 	 }
 
 
@@ -483,6 +498,7 @@ class NeuralNetwork{
 	  double oLearningRate;
 	  double maxLearningRate;
 	  double minLearningRate;
+	  double bias;
 	  bool eIncreasing;
 	  int eIncreasingCount;
 	  bool eStalling;
@@ -541,6 +557,7 @@ class NeuralNetwork{
 		  this->cutoffErrorRate=cErrorRate;
 		  this->layerSize=0;
 		  this->aSample=0;
+		  this->bias=0;
 	  }
 
 	  void resetNetworkForLoaded(){
@@ -630,10 +647,8 @@ class NeuralNetwork{
 		 if(mt){
 
 		 }else{
-			 bool first=true;
 			 for(int dataLocation=0;dataLocation<this->inputDataSize;dataLocation++){
-			 		this->feedForward(true,first,dataLocation);
-			 		first=false;
+				 this->feedForward(false,true,dataLocation);
 			 }
 		 }
 
@@ -647,65 +662,37 @@ class NeuralNetwork{
 						int rLoc=rand()%(this->inputDataSize-sample-0 + 1) + 0;
 						int rLoco=rLoc;
 						int cutoff=rLoc+sample;
-						long double bias=0.00L;
-//						long double cycles=10.0;
-//						long double heat=50;
-						int ix=0;
-						int iCutoff=3;
-						int mdCutoff=300;
-						int d=0;
-						int maxCutoff=3;
-						int m=0;
+						long double cycles=20.0;
+						long double heat=10000;
 						bool cn=true;
-
-						do{
+						int ci=0;
+						int cMax=5;
+						while(ci<cMax && cn){
+							while(rLoc<cutoff){
+													this->feedForward(false,true,rLoc);
+													this->backPropagate();
+													this->learn();
+													rLoc++;
+							}
+							cn=this->checkDataAndCleanUp(sample,false,true,true);
+							ci++;
+							rLoc=rLoco;
+						}
+						if(cn){
+							if(!this->eIncreasing){
 								rLoc=rLoco;
-								while(rLoc<cutoff){
-												this->feedForward(false,true,rLoc);
-												this->backPropagate(bias);
-												this->learn();
-												rLoc++;
+								long double rt=((long double)this->it/(long double)this->mCutoff);
+								if(this->totalReturnValuePR >= 0.4){
+									cycles=11+11*rt;
+									heat=10000+(10000.0*rt);
+									this->runAnnealing(rLoc, cutoff, heat, cycles,false,this->totalReturnValueP, sample);
+								}else if(this->totalReturnValuePR >= 0.10){
+									cycles=11+11*rt;
+									heat=1000+1000*rt;
+									this->runAnnealing(rLoc, cutoff, heat, cycles,false,this->totalReturnValueP, sample);
 								}
-								cn=this->checkDataAndCleanUp(sample,false);
-								ix++;
-						}while(ix<iCutoff && cn);
-
-						do{
-							rLoc=rLoco;
-							while(rLoc<cutoff){
-											this->feedForward(false,true,rLoc);
-											this->backPropagate(bias);
-											this->learn();
-											rLoc++;
 							}
-							cn=this->checkDataAndCleanUp(sample,false);
-							d++;
-						}while(!this->eIncreasing && d<mdCutoff && cn);
-
-						do{
-							rLoc=rLoco;
-							while(rLoc<cutoff){
-											this->feedForward(false,true,rLoc);
-											this->backPropagate(bias);
-											this->learn();
-											rLoc++;
-							}
-							cn=this->checkDataAndCleanUp(sample,false);
-							bias+=10;
-							m++;
-						}while(this->eIncreasing && m<maxCutoff && cn);
-
-/*						if(!this->eIncreasing){
-							if(this->totalReturnValuePR >= 0.4){
-								cycles=20+20.0*((long double)this->it/(long double)this->mCutoff);
-								heat=100+(100.0*((long double)this->it/(long double)this->mCutoff));
-								this->runAnnealing(rLoc, cutoff, heat, cycles,false,this->totalReturnValueP, sample, bias);
-							}else if(this->totalReturnValuePR >= 0.25){
-								cycles+=10.0*((long double)this->it/(long double)this->mCutoff);
-								heat+=50.0*((long double)this->it/(long double)this->mCutoff);
-								this->runAnnealing(rLoc, cutoff, heat, cycles,false,this->totalReturnValueP, sample, bias);
-							}
-						}*/
+						}
 
 
 			  	 }
@@ -777,7 +764,7 @@ class NeuralNetwork{
 		 }
 	  }
 
-	  void backPropagate(long double bias){
+	  void backPropagate(){
 		  try{
 			  int cNeuronIndex=this->neuronsVSizeM;
 
@@ -788,7 +775,7 @@ class NeuralNetwork{
 							  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
 
 							  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0 && previousNeuronId>-1;pi--,previousNeuronId--){
-									  this->neurons.at(cNeuronIndex)->outputNeuronCalcError(pi, this->neurons.at(previousNeuronId), this->learningRate, this->momentum, this->eIncreasing,bias);
+									  this->neurons.at(cNeuronIndex)->outputNeuronCalcError(pi, this->neurons.at(previousNeuronId), this->learningRate, this->momentum, this->eIncreasing,this->bias);
 							  };
 							 // Move on to next neuron
 							 cNeuronIndex--;
@@ -806,7 +793,7 @@ class NeuralNetwork{
 							  do{
 								  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
 								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0 && previousNeuronId>-1;pi--,previousNeuronId--){
-										  this->neurons.at(cNeuronIndex)->hiddenNeuronCalcError(pi,nlin,this->neurons.at(previousNeuronId),this->neurons.at(nextLayerNeuronId),this->learningRate,this->momentum,this->eIncreasing,bias);
+										  this->neurons.at(cNeuronIndex)->hiddenNeuronCalcError(pi,nlin,this->neurons.at(previousNeuronId),this->neurons.at(nextLayerNeuronId),this->learningRate,this->momentum,this->eIncreasing,this->bias);
 								  };
 								  nextLayerNeuronId--;
 								  nLayerCount++;
@@ -864,7 +851,17 @@ class NeuralNetwork{
 
 	  }
 
-	  bool checkDataAndCleanUp(int sample,bool suppress){
+	  void rollback(){
+			  int cNeuronIndex=this->neuronsVSizeM;
+			  int layer=this->neurons.at(cNeuronIndex)->layer;
+			  do{
+				  	  this->neurons.at(cNeuronIndex)->rollbackWeights();
+					  cNeuronIndex--;
+					  layer=this->neurons.at(cNeuronIndex)->layer;
+			  }while(layer>0);
+	  }
+
+	  bool checkDataAndCleanUp(int sample,bool suppress,bool rc,bool brc){
 			this->learningRate=this->learningRate/(1.0+((double)this->it/(double)this->pCutoff));
 		    if(this->totalReturnValueP>0){
 					  if((this->totalReturnValue < this->totalReturnValueP)){
@@ -879,6 +876,15 @@ class NeuralNetwork{
 						this->eStalling=true;
 					  }
 		  	 }
+			 if(rc){
+				 if(this->eIncreasing){
+					 this->rollback();
+					 if(brc){
+						 this->bias+=0.33333;
+					 }
+				 }
+			 }
+
 			 this->totalReturnValueP=this->totalReturnValue;
 			 this->totalReturnValuePR=this->totalReturnValueP/(double)sample;
 			 if(!suppress){
@@ -893,7 +899,7 @@ class NeuralNetwork{
 		     }
 	  }
 
-	  void runAnnealing(int rLoc, int cutoff,long double heat,long double cycles,bool ca,long double oError,int sample,long double bias){
+	  void runAnnealing(int rLoc, int cutoff,long double heat,long double cycles,bool ca,long double oError,int sample){
 			long double currentTemp=heat;
 			long double stoptemp=heat*0.02;
 			long double pError=oError;
@@ -905,23 +911,20 @@ class NeuralNetwork{
 			int ai=0;
 			// int ti=0;
 			int c=0;
-		    bool first=true;
 
 			do{
 				c=0;
 				do{
 						this->randomize(currentTemp,heat);
 						while(rLoc<cutoff){
-								this->feedForward(false,first,rLoc);
-								first=false;
+								this->feedForward(false,true,rLoc);
 								rLoc++;
 						}
-						first=true;
 						rLoc=eLoc2;
-						this->checkDataAndCleanUp(sample,true);
+						this->checkDataAndCleanUp(sample,true,true,false);
 						ai++;
 						pError=this->totalReturnValueP;
-						cout << "Annealing Iteration: "<< ai <<" deviation from ideal results: "<< fabs(this->totalReturnValuePR) << endl;
+						cout << "Annealing: "<< ai << " current deviation from ideal results: "<< fabs(this->totalReturnValuePR) << endl;
 
 						stopRate=pError/oError;
 						if(stopRate<stopRatet || pError <= this->cutoffErrorRate){
@@ -955,6 +958,7 @@ class NeuralNetwork{
 						long double add = 0.0000005 - fRand(0.0000003,0.0000001);
 						add /= startTemp;
 						add *= currentTemp;
+						this->neurons.at(i)->in.at(c)->backupWeight();
 						this->neurons.at(i)->in.at(c)->weight+=add;
 					}
 				}
@@ -962,6 +966,7 @@ class NeuralNetwork{
 			}
 
 		}
+
 
 
 };
