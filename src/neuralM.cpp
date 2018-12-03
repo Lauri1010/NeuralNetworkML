@@ -87,17 +87,17 @@ int main (int argc, char *argv[]){
 		 }
 */
 
-		 double learningRate=0.000014;
+		 double learningRate=0.00000011;
 		 double momentum=0.8;
-		 int mCutoff=2000000;
+		 int mCutoff=1000000;
 		 double aCutoff=mCutoff-1000;
 		 bool train=true;
 		 double av=0.035;
 /*		 long double bias=0.001;*/
 		 // int ar=0;
 		 // int sample=5;
-		 int sampleMax=5;
-		 int sampleMin=4;
+		 int sampleMax=6;
+		 int sampleMin=5;
 
 		 if(param==0){
 			 NeuralNetwork * nn = new NeuralNetwork(neuralMap,inputData,idealData,learningRate,momentum,train,av,mCutoff,aCutoff,sampleMax,sampleMin);
