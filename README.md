@@ -1,5 +1,6 @@
 # Multilayer Neural Network Beta
 Multilayered backpropagation neural network developed with c++
+
 NOTE: Currently ongoing major changes
 - Changing the learning system (DONE)
 - Bugfixes (input) done (DONE) after changes
