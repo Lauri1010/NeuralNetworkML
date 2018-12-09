@@ -37,11 +37,8 @@ int main (int argc, char *argv[]){
 		 }
 		 int param = atoi(argv[1]);
 
-		 // ActivationFunctionTanh * af=new ActivationFunctionTanh();
-
 		 clock_t begin = clock();
 		 int neurons[]={3,20,20,20,20,1};
-		 // int neurons[]={2,3,3,3,1};
 		 vector<vector<int>>neuralMap;
 		 int nSize=sizeof(neurons)/sizeof(neurons[0]);
 		 for(int a = 0; a < nSize; a++){
@@ -70,36 +67,22 @@ int main (int argc, char *argv[]){
 		 vector<vector<long double>>idealData;
 
 		 for(int t=0;t<iSize;t++){
-			 // long double td=(long double)t;
 			 long double ival=((inputData.at(t).at(0)+inputData.at(t).at(1)+inputData.at(t).at(2))/3);
-/*			 long double ival2=abs(af->activationOutput(ival*0.0001));*/
 			 idealData.push_back({
 				 ival
 			 });
 		 }
 
-/*
-		 for (std::vector<int>::const_iterator i = neuralMap.begin(); i != neuralMap.end(); ++i)
-		     std::cout << *i << ' ';
-
-		 for(int i=0;i<inputData.size();i++){
-			 cout << "input "<<inputData.at(i).at(0);
-		 }
-*/
-
-		 double learningRate=0.00000011;
-		 double momentum=0.8;
-		 int mCutoff=1000000;
-		 double aCutoff=mCutoff-1000;
-		 bool train=true;
-		 double av=0.035;
-/*		 long double bias=0.001;*/
-		 // int ar=0;
-		 // int sample=5;
-		 int sampleMax=6;
-		 int sampleMin=5;
-
 		 if(param==0){
+			 double learningRate=0.00000000011111;
+			 double momentum=0.79;
+			 int mCutoff=15000;
+			 double aCutoff=25000;
+			 bool train=true;
+			 double av=0.015;
+			 int sampleMax=125;
+			 int sampleMin=2;
+
 			 NeuralNetwork * nn = new NeuralNetwork(neuralMap,inputData,idealData,learningRate,momentum,train,av,mCutoff,aCutoff,sampleMax,sampleMin);
 			 nn->createNetwork();
 			 nn->iterate();
@@ -111,28 +94,27 @@ int main (int argc, char *argv[]){
 			  }
 			  int ns=nn->neurons.size();
 			  for(int prin=0;prin<ns;prin++){
-/*				  char* bBytes = reinterpret_cast<char*>(&bias);*/
-/*				  outfile.write(reinterpret_cast<const char*>(bBytes), sizeof(bBytes));*/
-				  outfile.write(reinterpret_cast<char*>(&nn->neurons.at(prin)->id), sizeof(int));
-				  outfile.write(reinterpret_cast<char*>(&nn->neurons.at(prin)->inputs), sizeof(int));
-				  outfile.write(reinterpret_cast<char*>(&nn->neurons.at(prin)->layer), sizeof(int));
-				  outfile.write(reinterpret_cast<char*>(&nn->neurons.at(prin)->func), sizeof(int));
-				  char* bytes = reinterpret_cast<char*>(&nn->neurons.at(prin)->ao);
-				  outfile.write(reinterpret_cast<char*>(bytes), sizeof(bytes));
+				  char* bytes0 = reinterpret_cast<char*>(&nn->neurons.at(prin)->ao);
+				  outfile.write(bytes0, sizeof(bytes0));
 				  int lSize=nn->neurons.at(prin)->in.size();
 				  for(int li=0;li<lSize;li++){
-					  outfile.write(reinterpret_cast<char*>(&nn->neurons.at(prin)->in.at(li)->fromNeuron), sizeof(int));
-					  char* bytes2 = reinterpret_cast<char*>(&nn->neurons.at(prin)->in.at(li)->weight);
-					  outfile.write(reinterpret_cast<const char*>(bytes2), sizeof(bytes2));
+					  char* bytes1 = reinterpret_cast<char*>(&nn->neurons.at(prin)->in.at(li)->weight);
+					  outfile.write(bytes1, sizeof(bytes1));
 				  }
 			  }
 			  outfile.close();
 			  nn=0;
 		 }else if(param==1){
+			 double learningRate=0.00000000011111;
+			 double momentum=0.79;
+			 int mCutoff=2;
+			 bool train=true;
+			 double av=0.015;
+			 int sampleMax=125;
+			 int sampleMin=2;
 
 			 NeuralNetwork * nn = new NeuralNetwork(neuralMap,inputData,idealData,learningRate,momentum,train,av,mCutoff,1,sampleMax,sampleMin);
 			 nn->createNetwork();
-
 			 ifstream inFile("network.dat", ios::in|ios::binary);
 			 if (!inFile){
 			       cerr << "File could not be opened." << endl;
@@ -140,22 +122,13 @@ int main (int argc, char *argv[]){
 			 }
 			  int ns=nn->neurons.size();
 			  for(int prin=0;prin<ns;prin++){
-/*				  inFile.read(reinterpret_cast<char*>(&bias),sizeof(&bias));*/
-				  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->id), sizeof(int));
-				  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->inputs), sizeof(int));
-				  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->layer), sizeof(int));
-				  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->func), sizeof(int));
-				  // char* bytes = reinterpret_cast<char*>(&nn->neurons.at(prin)->activationOutput);
-				  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->ao),sizeof(&nn->neurons.at(prin)->ao));
+				  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->ao), sizeof(&nn->neurons.at(prin)->ao));
 				  int lSize=nn->neurons.at(prin)->in.size();
 				  for(int li=0;li<lSize;li++){
-					  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->in.at(li)->fromNeuron), sizeof(nn->neurons.at(prin)->in.at(li)->fromNeuron));
-					  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->in.at(li)->weight), sizeof(&nn->neurons.at(prin)->in.at(li)->weight));
+					  inFile.read(reinterpret_cast<char*>(&nn->neurons.at(prin)->in.at(li)->weight), sizeof(double));
 				  }
 
 			  }
-
-			 nn->resetNeurons();
 			 nn->pRun(false);
 			 nn=0;
 		 }
