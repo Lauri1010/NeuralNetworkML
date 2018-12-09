@@ -1,6 +1,12 @@
 # Multilayer Neural Network Beta
 Multilayered backpropagation neural network developed with c++
 
+NOTE: Currently ongoing major changes
+- Changing the learning system (DONE)
+- Bugfixes (input) done (DONE) after changes
+- Binary file saving fix as not working anymore (ongoing)
+-> Will publish here after changes are done. 
+
 You must run the program on windows command prompt (win 10)
 - NeuralM.exe 0 for training mode
 - NeuralM.exe 1 for prediction mode
