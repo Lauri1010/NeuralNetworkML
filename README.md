@@ -1,5 +1,5 @@
 # Multilayer Neural Network Beta
-Low level Multilayer backpropagation neural network developed with c++, you can easily edit. For those you want a sufficiently advanced but compact and easy to edit program. 
+Low level Multilayer backpropagation neural network developed with c++, you can easily edit. For those who want a sufficiently advanced but compact and easy to edit program. 
 Developed with high performance and high customizability in mind. It is very easy to customize different types of network structures as Neurons can be setup in any way you wish so long as you create the connection rules for the network (different network structures will be developed).
 As such this is not a specially optimized network for the "standard" layered architecture, but can easily be edited to various topologies.
 
