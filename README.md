@@ -17,7 +17,7 @@ Features:
 ![Neural network](https://www.ttaito.fi/images/trainedabit.png)
 
 NOTE: I do not claim to be an expert in machine learning or mathematics. All you see here are things I've studied on my own or learned through experimentation.
-Work is ongoing and this more than anything a labour of love. I simply enjoy developing this software, but want to share it here as it does work :)   
+Work is ongoing and this more than anything a labour of love. I simply enjoy developing this software, but want to share it here as it does work much better than I expected, considering how hard the training data is (not your run of the mill simple training set) :)   
 
 You must run the program on windows command prompt (win 10)
 - NeuralM.exe 0 for training mode
