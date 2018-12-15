@@ -10,7 +10,7 @@ Features:
 - Unlimited input, hidden and output neurons
 - Using two backpropagation learning systems (Gradient descent, Stochastic gradient descent)
 - Simulated annealing (global optimal solution)
-- Good performance (developed using c++, optimized) & highly customizable
+- Very good performance (developed using c++, optimized). Able to handle millions of training iterations on large test samples in a few hours.
 - Saving and loading network from binary file
 - Advanced testing training data generator (lots of hard peaks and valleys to learn)
 
