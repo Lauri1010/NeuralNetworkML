@@ -784,18 +784,23 @@ class NeuralNetwork{
 						}
 
 
-/*						if(this->nCycle>150){
+						if(this->nCycle>150 || this->nCycle==0){
+							double rt=(double)this->it/(double)this->skeleton.mCutoff;
+							int mc=this->skeleton.inputDataSize;
 							int bi=0;
-							int biMax=2;
+							int biMax=5;
 							while(bi<biMax){
-								runTrainingRound(0,this->skeleton.inputDataSize,bias,sample,true,true);
-								cn=this->checkDataAndCleanUp(sample,false,true,true);
+								runTrainingRound(0,mc,bias,mc,true,true);
+								this->checkDataAndCleanUp(mc,false,true,true);
 								bi++;
+							}
+							if(rt<0.7){
+								this->runAnnealingTrainingRound(mc,21,111111111);
 							}
 							this->nCycle=0;
 						}
 
-						this->nCycle++;*/
+						this->nCycle++;
 			  	 }
 
 		  }catch (const std::exception& ex) {
@@ -817,8 +822,8 @@ class NeuralNetwork{
 
 	  }
 
-	  void runAnnealingTrainingRound(long double cycles,long double heat){
-			this->runAnnealing(0, this->skeleton.inputDataSize, heat, cycles,false);
+	  void runAnnealingTrainingRound(int cf,long double cycles,long double heat){
+			this->runAnnealing(0, cf, heat, cycles,false);
 	  }
 
 	  void feedForward(bool showOutput,int dataLocation){
@@ -1007,7 +1012,7 @@ class NeuralNetwork{
 						cn=this->checkDataAndCleanUp(cutoff,true,true,false);
 						ai++;
 						pError=this->totalReturnValueP;
-						cout << "Annealing: "<< ai << " current deviation from ideal results: "<< fabs(this->totalReturnValuePR) << endl;
+						cout << "Annealing: "<< ai << " current deviation from ideal results: "<< this->totalReturnValuePR << endl;
 
 						stopRate=pError/oError;
 						if(stopRate<stopRatet || pError <= this->skeleton.av || !cn){

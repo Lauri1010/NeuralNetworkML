@@ -31,8 +31,8 @@ int main (int argc, char *argv[]){
 			 NeuralSkeleton skeleton;
 			 skeleton.learningRate=0.000003111111;
 			 skeleton.momentum=0.79111;
-			 skeleton.mCutoff=1750000;
-			 skeleton.aCutoff=1740000;
+			 skeleton.mCutoff=1250000;
+			 skeleton.aCutoff=800000;
 			 skeleton.sampleMax=12;
 			 skeleton.sampleMin=2;
 			 skeleton.init();
@@ -41,7 +41,7 @@ int main (int argc, char *argv[]){
 			 NeuralNetwork * nn = new NeuralNetwork(skeleton);
 			 nn->createNetwork();
 			 nn->iterate();
-			 nn->runAnnealingTrainingRound(5,15222222);
+			 // nn->runAnnealingTrainingRound(skeleton.inputDataSize,249,15222222);
 			 nn->pRun(false);
 
 			 int ns=nn->neurons.size();
