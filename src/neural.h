@@ -29,6 +29,14 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <fstream>
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <ostream>
+#include <numeric>
+#include <chrono>
+#include <iostream>
+#include <iterator>
 
 class my_exception : public std::runtime_error {
     std::string msg;
@@ -688,21 +696,13 @@ class NeuralNetwork{
 		}
 	  }
 
-	  void pRun(bool mt){
-		 if(mt){
-
-		 }else{
+	  void pRun(){
 			 for(int dataLocation=0;dataLocation<this->skeleton.inputDataSize;dataLocation++){
 				 this->feedForward(true,dataLocation);
 			 }
-		 }
-
 	  }
 	  void lRun(bool mt, int sample){
 		  try{
-			  	 if(mt){
-
-			  	 }else{
 						int rLoc=rand()%(this->skeleton.inputDataSize-sample-0 + 1) + 0;
 						int cutoff=rLoc+sample;
 						long double bias=0;
@@ -799,9 +799,7 @@ class NeuralNetwork{
 							}
 							this->nCycle=0;
 						}
-
 						this->nCycle++;
-			  	 }
 
 		  }catch (const std::exception& ex) {
 				 throw_line(ex.what());
@@ -827,31 +825,66 @@ class NeuralNetwork{
 	  }
 
 	  void feedForward(bool showOutput,int dataLocation){
+			 if(dataLocation<this->skeleton.inputDataSize){
+
+
+					try{
+					    int oDataLoc=0;
+					    int ifi=0;
+					    int layer=0;
+
+							  do{
+									  #pragma omp parallel for simd
+									  for(int c=this->layers.at(layer).at(0);c<this->layers.at(layer).at(1);c++){
+											if(layer==0){
+												this->neurons.at(c)->setInput(0,-1, this->skeleton.inputData.at(dataLocation).at(ifi));
+												ifi++;
+											}else if(layer>0){
+												int i=0;
+												for(int ix=layers.at(layer-1).at(0);ix<layers.at(layer-1).at(1);ix++){
+													this->neurons.at(c)->setInput(i,ix,this->neurons.at(ix)->getOutputStatic());
+													i++;
+												}
+											}
+											this->neurons.at(c)->aOutput();
+											if(layer==this->skeleton.neuronMapSizeM){
+												  this->neurons.at(c)->finalOutput(this->skeleton.idealData.at(dataLocation).at(oDataLoc),this->it,oDataLoc,showOutput,this->totalReturnValue);
+												  oDataLoc++;
+											}
+									  }
+									  layer++;
+							  }while(layer<this->skeleton.neuronMapSize);
+
+					 }catch (const std::exception& ex) {
+						 throw_line(ex.what());
+						 exit(EXIT_FAILURE);
+					 }
+
+			 }
+	  }
+
+	  void feedForwardInd(bool showOutput,int dataLocation,int nIndex,int &oDataLoc){
 		 try{
 			 if(dataLocation<this->skeleton.inputDataSize){
-				  int oDataLoc=0;
 				  int layer;
 				  int ifi=0;
-				  int dLocc=0;
-					 for(int c=0;c<this->neuronsVSize;c++){
-							layer=this->neurons.at(c)->layer;
+							layer=this->neurons.at(nIndex)->layer;
 							if(layer==0){
-								this->neurons.at(c)->setInput(0,-1, this->skeleton.inputData.at(dataLocation).at(ifi));
+								this->neurons.at(nIndex)->setInput(0,-1, this->skeleton.inputData.at(dataLocation).at(ifi));
 								ifi++;
 							}else if(layer>0){
 									int i=0;
 									for(int ix=layers.at(layer-1).at(0);ix<layers.at(layer-1).at(1);ix++){
-										this->neurons.at(c)->setInput(i,ix,this->neurons.at(ix)->getOutputStatic());
+										this->neurons.at(nIndex)->setInput(i,ix,this->neurons.at(ix)->getOutputStatic());
 										i++;
 									}
 							}
-							dLocc++;
-							this->neurons.at(c)->aOutput();
+							this->neurons.at(nIndex)->aOutput();
 							if(layer==this->skeleton.neuronMapSizeM){
-								this->neurons.at(c)->finalOutput(this->skeleton.idealData.at(dataLocation).at(oDataLoc),this->it,oDataLoc,showOutput,this->totalReturnValue);
+								this->neurons.at(nIndex)->finalOutput(this->skeleton.idealData.at(dataLocation).at(oDataLoc),this->it,oDataLoc,showOutput,this->totalReturnValue);
 								oDataLoc++;
 							}
-					  }
+
 			 }
 		 }catch (const std::exception& ex) {
 			 throw_line(ex.what());
@@ -869,14 +902,19 @@ class NeuralNetwork{
 			  }else{
 				  alr*=((long double)sample/(long double)skeleton.inputDataSize)*1.3333;
 			  }
+
 				  for(int layer=this->skeleton.neuronMapSizeM;layer>0;layer--){
 					  if(layer==this->skeleton.neuronMapSizeM){
 						  do{
 							  // Neurons end at the previous layer
 							  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
 
-							  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0 && previousNeuronId>-1;pi--,previousNeuronId--){
+							  #pragma omp for schedule(dynamic)
+							  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0;pi--){
+								  if(previousNeuronId>-1){
 									  this->neurons.at(cNeuronIndex)->outputNeuronCalcError(pi, this->neurons.at(previousNeuronId), alr, this->skeleton.momentum, this->eIncreasing,tbias);
+								  	  previousNeuronId--;
+								  }
 							  };
 							 // Move on to next neuron
 							 cNeuronIndex--;
@@ -893,8 +931,13 @@ class NeuralNetwork{
 
 							  do{
 								  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
-								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0 && previousNeuronId>-1;pi--,previousNeuronId--){
-										  this->neurons.at(cNeuronIndex)->hiddenNeuronCalcError(pi,nlin,this->neurons.at(previousNeuronId),this->neurons.at(nextLayerNeuronId),alr,this->skeleton.momentum,this->eIncreasing,tbias);
+
+								  #pragma omp for schedule(dynamic)
+								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0;pi--){
+									  	  if(previousNeuronId>-1){
+											  this->neurons.at(cNeuronIndex)->hiddenNeuronCalcError(pi,nlin,this->neurons.at(previousNeuronId),this->neurons.at(nextLayerNeuronId),alr,this->skeleton.momentum,this->eIncreasing,tbias);
+											  previousNeuronId--;
+									  	  }
 								  };
 								  nextLayerNeuronId--;
 								  nLayerCount++;
@@ -910,7 +953,6 @@ class NeuralNetwork{
 			 throw_line(ex.what());
 			 exit(EXIT_FAILURE);
 		 }
-
 	  }
 
 	  /***
@@ -1066,8 +1108,4 @@ class NeuralNetwork{
 		}
 
 };
-
-
-
-
 #endif /* NEURAL_H_ */
