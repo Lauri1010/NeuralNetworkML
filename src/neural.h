@@ -906,16 +906,16 @@ class NeuralNetwork{
 				  for(int layer=this->skeleton.neuronMapSizeM;layer>0;layer--){
 					  if(layer==this->skeleton.neuronMapSizeM){
 						  do{
-							  // Neurons end at the previous layer
-							  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
+								  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
 
-							  #pragma omp for schedule(dynamic)
-							  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0;pi--){
-								  if(previousNeuronId>-1){
-									  this->neurons.at(cNeuronIndex)->outputNeuronCalcError(pi, this->neurons.at(previousNeuronId), alr, this->skeleton.momentum, this->eIncreasing,tbias);
-								  	  previousNeuronId--;
-								  }
-							  };
+								  #pragma omp simd
+								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0;pi--){
+									  if(previousNeuronId>-1){
+										  this->neurons.at(cNeuronIndex)->outputNeuronCalcError(pi, this->neurons.at(previousNeuronId), alr, this->skeleton.momentum, this->eIncreasing,tbias);
+										  previousNeuronId--;
+									  }
+								  };
+
 							 // Move on to next neuron
 							 cNeuronIndex--;
 						  }while(this->neurons.at(cNeuronIndex)->layer==layer);
@@ -932,13 +932,14 @@ class NeuralNetwork{
 							  do{
 								  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
 
-								  #pragma omp for schedule(dynamic)
+								  #pragma omp simd
 								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0;pi--){
-									  	  if(previousNeuronId>-1){
+										  if(previousNeuronId>-1){
 											  this->neurons.at(cNeuronIndex)->hiddenNeuronCalcError(pi,nlin,this->neurons.at(previousNeuronId),this->neurons.at(nextLayerNeuronId),alr,this->skeleton.momentum,this->eIncreasing,tbias);
 											  previousNeuronId--;
-									  	  }
+										  }
 								  };
+
 								  nextLayerNeuronId--;
 								  nLayerCount++;
 							  }while(nLayerCount<neuronsInNextLayer);

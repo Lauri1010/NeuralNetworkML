@@ -19,7 +19,7 @@ int main (int argc, char *argv[]){
 
 		 if(param==0){
 			 NeuralSkeleton skeleton;
-			 skeleton.learningRate=0.00314111;
+			 skeleton.learningRate=0.00114111;
 			 skeleton.momentum=0.79111;
 			 skeleton.mCutoff=27500;
 			 skeleton.aCutoff=26500;
