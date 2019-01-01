@@ -8,19 +8,9 @@
 
 
 #include "neural.h"
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <ostream>
-#include <numeric>
-#include <chrono>
-#include <iostream>
-#include <iterator>
-
 
 int main (int argc, char *argv[]){
 	 try{
-
 		 if (argc < 1) {
 		        return 1;
 		 }
@@ -29,10 +19,12 @@ int main (int argc, char *argv[]){
 
 		 if(param==0){
 			 NeuralSkeleton skeleton;
-			 skeleton.learningRate=0.000003111111;
-			 skeleton.momentum=0.79111;
-			 skeleton.mCutoff=1250000;
-			 skeleton.aCutoff=800000;
+			 skeleton.learningRate=0.000189180;
+			 skeleton.momentum=0.79;
+			 skeleton.mCutoff=500000;
+			 skeleton.aCutoff=480000;
+/*			 skeleton.mCutoff=5000;
+			 skeleton.aCutoff=4900;*/
 			 skeleton.sampleMax=12;
 			 skeleton.sampleMin=2;
 			 skeleton.init();
@@ -41,8 +33,7 @@ int main (int argc, char *argv[]){
 			 NeuralNetwork * nn = new NeuralNetwork(skeleton);
 			 nn->createNetwork();
 			 nn->iterate();
-			 // nn->runAnnealingTrainingRound(skeleton.inputDataSize,249,15222222);
-			 nn->pRun(false);
+			 nn->pRun();
 
 			 int ns=nn->neurons.size();
 			 for(int prin=0;prin<ns;prin++){
@@ -56,7 +47,6 @@ int main (int argc, char *argv[]){
 			 std::ofstream os("out.cereal", std::ios::binary);
 			 cereal::BinaryOutputArchive oarchive(os);
 			 oarchive(skeleton);
-
 			 nn=0;
 		 }else if(param==1){
 			 NeuralSkeleton skeleton;
@@ -68,11 +58,10 @@ int main (int argc, char *argv[]){
 			 NeuralNetwork * nn = new NeuralNetwork(skeleton);
 			 nn->createNetwork();
 			 nn->setWeights();
-			 nn->pRun(false);
+			 nn->pRun();
 
 			 nn=0;
 		 }
-
 		 clock_t end = clock();
 		 double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
 		 cout << "Elapsed time in seconds: "<< elapsed_secs;

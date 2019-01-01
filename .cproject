@@ -83,7 +83,7 @@
                             							
                             <tool id="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.exe.debug.1642725916" name="Cygwin C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.exe.debug">
                                 								
-                                <option id="gnu.cpp.link.option.flags.371462400" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="-fopenmp" valueType="string"/>
+                                <option id="gnu.cpp.link.option.flags.371462400" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="" valueType="string"/>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.597394485" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
                                     									
@@ -165,13 +165,15 @@
                                 								
                                 <option id="gnu.cpp.compiler.option.dialect.std.1861521039" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
                                 								
-                                <option id="gnu.cpp.compiler.option.other.other.747518900" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -fopenmp" valueType="string"/>
+                                <option id="gnu.cpp.compiler.option.other.other.747518900" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0" valueType="string"/>
                                 								
                                 <option id="gnu.cpp.compiler.option.include.paths.1727231083" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
                                     <listOptionValue builtIn="false" value="&quot;${workspace_loc:/NeuralM/Includes/cereal/include}&quot;"/>
                                     								
                                 </option>
+                                								
+                                <option id="gnu.cpp.compiler.option.optimization.flags.1215060595" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" useByScannerDiscovery="false" value="-Ofast -ftree-vectorize -ffast-math -frename-registers" valueType="string"/>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin.831853537" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin"/>
                                 							
@@ -193,7 +195,7 @@
                             							
                             <tool id="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.exe.release.103749896" name="Cygwin C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.exe.release">
                                 								
-                                <option id="gnu.cpp.link.option.flags.349964342" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="-fopenmp" valueType="string"/>
+                                <option id="gnu.cpp.link.option.flags.349964342" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="" valueType="string"/>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.87886364" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
                                     									

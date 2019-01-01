@@ -1,8 +1,5 @@
 # Neural computing: Multilayer Neural Network with simulated annealing - beta
-Low level Multilayer backpropagation neural network developed with c++, you can easily edit. For those who want a sufficiently advanced but compact and easy to edit program. 
-Developed with high performance and high customizability in mind. It is very easy to customize different types of network structures as Neurons can be setup in any way you wish so long as you create the connection rules for the network (different network structures will be developed).
-As such this is not a specially optimized network for the "standard" layered architecture, but can easily be edited to various topologies.
-
+Low level Multilayer backpropagation neural network developed and optimized with c++
 
 ## Features:
 - Easy to edit multilayer network for neural computing
@@ -10,7 +7,7 @@ As such this is not a specially optimized network for the "standard" layered arc
 - Unlimited input, hidden and output neurons
 - Using two backpropagation learning systems (Gradient descent, Stochastic gradient descent)
 - Simulated annealing (global optimal solution)
-- Very good performance (developed using c++, optimized). Able to handle millions of training iterations on large test samples in a few hours.
+- **UPDATE: Improved performance: capable of training one million rows of 4000 item training set in 35 minutes (500k in 17). Tested with slowest ryzen 1400, gycwin compiler with: g++ -O3 -Ofast -ftree-vectorize -ffast-math -frename-registers**
 - Saving and loading network from binary file
 - Advanced testing training data generator (lots of hard peaks and valleys to learn)
 
