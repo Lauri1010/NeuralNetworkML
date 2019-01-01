@@ -19,10 +19,10 @@ int main (int argc, char *argv[]){
 
 		 if(param==0){
 			 NeuralSkeleton skeleton;
-			 skeleton.learningRate=0.00114111;
-			 skeleton.momentum=0.79111;
-			 skeleton.mCutoff=27500;
-			 skeleton.aCutoff=26500;
+			 skeleton.learningRate=0.000189180;
+			 skeleton.momentum=0.79;
+			 skeleton.mCutoff=500000;
+			 skeleton.aCutoff=480000;
 /*			 skeleton.mCutoff=5000;
 			 skeleton.aCutoff=4900;*/
 			 skeleton.sampleMax=12;

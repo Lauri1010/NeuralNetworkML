@@ -22,7 +22,6 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
-#include <omp.h>
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/unordered_map.hpp>
 #include <cereal/types/memory.hpp>
@@ -37,6 +36,7 @@
 #include <chrono>
 #include <iostream>
 #include <iterator>
+using namespace std;
 
 class my_exception : public std::runtime_error {
     std::string msg;
@@ -53,11 +53,10 @@ public:
     }
 };
 #define throw_line(arg) throw my_exception(arg, __FILE__, __LINE__);
-using namespace std;
 
-long double fRand(long double fMax,long double fMin)
+ double fRand( double fMax, double fMin)
 {
-    long double f = (long double)rand() / RAND_MAX;
+     double f = ( double)rand() / RAND_MAX;
     return fMin + f * (fMax - fMin);
 }
 
@@ -65,18 +64,18 @@ class ActivationFunction{
 	public:
 	ActivationFunction(){};
 	virtual ~ActivationFunction(){delete this;};
-	virtual long double activationOutput(long double d) = 0;
-	virtual long double dFunction(long double d) = 0;
+	virtual  double activationOutput( double d) = 0;
+	virtual  double dFunction( double d) = 0;
 };
 
 class ActivationFunctionLinear final: public ActivationFunction{
 	public:
 	ActivationFunctionLinear(){};
 	~ActivationFunctionLinear(){delete this;};
-	long double activationOutput(long double d){
+	 double activationOutput( double d){
 		return d;
 	}
-	long double dFunction(long double d){
+	 double dFunction( double d){
 		return 1;
 	}
 };
@@ -86,10 +85,10 @@ class ActivationFunctionTanh final: public ActivationFunction{
 	public:
 	ActivationFunctionTanh(){};
 	~ActivationFunctionTanh(){delete this;};
-	long double activationOutput(long double d){
+	 double activationOutput( double d){
 		return (exp(d*2.0)-1.0)/(exp(d*2.0)+1.0);
 	}
-	long double dFunction(long double d){
+	 double dFunction( double d){
 		return 1.0-pow(activationOutput(d), 2.0);
 	}
 };
@@ -98,12 +97,12 @@ class ActivationFunctionSigmoid final: public ActivationFunction{
 	public:
 	ActivationFunctionSigmoid(){};
 	~ActivationFunctionSigmoid(){delete this;};
-	long double activationOutput(long double d){
-		   long double e = exp(d)*9;
+	 double activationOutput( double d){
+		    double e = exp(d)*9;
 	       return - 1.0/(1.0+e);
 	}
-	long double dFunction(long double d){
-		long double e = exp(d);
+	 double dFunction( double d){
+		 double e = exp(d);
 		return - e/((1.0+e)*(1.0+e));
 	}
 };
@@ -112,11 +111,11 @@ class ActivationFunctionRectifiedRelu final: public ActivationFunction{
 	public:
 	ActivationFunctionRectifiedRelu(){};
 	~ActivationFunctionRectifiedRelu(){delete this;};
-	long double activationOutput(long double d){
+	 double activationOutput( double d){
 		if(d<0){d=0;}
 		return d;
 	}
-	long double dFunction(long double d){
+	 double dFunction( double d){
 		if(d<0){d=0;}else if(d>=0){d=1;};
 		return d;
 	}
@@ -126,10 +125,10 @@ class ActivationFunctionSoftPlus final: public ActivationFunction{
 	public:
 	ActivationFunctionSoftPlus(){};
 	~ActivationFunctionSoftPlus(){delete this;};
-	long double activationOutput(long double d){
+	 double activationOutput( double d){
 		return log(1+pow(d,2));
 	}
-	long double dFunction(long double d){
+	 double dFunction( double d){
 		return 1/(1+pow(d,2));
 	}
 };
@@ -138,10 +137,10 @@ class ActivationFunctionSin final: public ActivationFunction{
 	public:
 	ActivationFunctionSin(){};
 	~ActivationFunctionSin(){delete this;};
-	long double activationOutput(long double d){
+	 double activationOutput( double d){
 		return sin(d);
 	}
-	long double dFunction(long double d){
+	 double dFunction( double d){
 		return cos(d);
 	}
 };
@@ -150,14 +149,14 @@ class ActivationFunctionSinc final: public ActivationFunction{
 	public:
 	ActivationFunctionSinc(){};
 	~ActivationFunctionSinc(){delete this;};
-	long double activationOutput(long double d){
+	 double activationOutput( double d){
 		if(d==0){
 			return 1;
 		}else{
 			return (sin(d)/d);
 		};
 	}
-	long double dFunction(long double d){
+	 double dFunction( double d){
 		if(d==0){
 			return (sin(d)/d);
 		}else{
@@ -174,12 +173,12 @@ class Input{
 	int fromNeuron;
 	int fromLayer;
 	int toLayer;
-	long double errorSumIn;
-	long double delta;
-	long double weight;
-	long double pWeight;
-	long double inputValue;
-	long double bias;
+	 double errorSumIn;
+	 double delta;
+	 double weight;
+	 double pWeight;
+	 double inputValue;
+	 double bias;
 	Input(int inputId,int layer,int fromNeuron){
 		this->id=inputId;
 		this->fromLayer=layer-1;
@@ -200,44 +199,44 @@ class Input{
 		this->errorSumIn=0;
 		this->inputValue=0;
 	}
-	long double setInput(long double input){
-		long double iv=this->weight*input;
+	 double setInput( double input){
+		 double iv=this->weight*input;
 		this->inputValue=iv;
 		return iv;
 	}
 
-	long double setInputUw(long double input){
+	 double setInputUw( double input){
 /*		this->weight=input/(((input-1)/input)*-1)*(1+input);*/
-		long double iv=this->weight*input;
+		 double iv=this->weight*input;
 		this->inputValue=iv;
 		return iv;
 	}
-	long double getWeight(){
+	 double getWeight(){
 		return this->weight;
 	}
-	void sumError(long double error){
+	void sumError( double error){
 		this->errorSumIn+=error;
 	}
 
-	void sumBias(long double bv){
+	void sumBias( double bv){
 			this->bias+=bv;
 	}
-	void sumDelta(long double delta){
+	void sumDelta( double delta){
 		this->delta+=delta;
 	}
 
-	long double calcWeightResult(){
+	 double calcWeightResult(){
 		return this->inputValue*this->weight;
 	}
-	long double getInput(){
+	 double getInput(){
 		return this->inputValue;
 	}
 	int getFrom(){
 		return this->fromNeuron;
 	}
 
-	void adjustWeights(long double learningRate,long double momentum,bool ei,bool start){
-		long double a=this->weight;
+	void adjustWeights( double learningRate, double momentum,bool ei,bool start){
+		 double a=this->weight;
 		if(ei){
 			this->weight +=fRand(0.000000000001, 0.00000000000001);
 		}
@@ -266,23 +265,23 @@ class Input{
 
 class Neuron{
 	 public:
-	 long double inputSum;
-	 long double outputSum;
+	  double inputSum;
+	  double outputSum;
 	 int layer;
 	 bool outputLayer;
 	 int id;
 	 bool func;
-	 long double wInput;
-	 long double delta;
+	  double wInput;
+	  double delta;
 	 int inputs;
-	 long double finalOutputError;
-	 long double ao;
+	  double finalOutputError;
+	  double ao;
 	 vector<unique_ptr<Input>> in;
 	 unique_ptr<ActivationFunction> af;
-	 long double weightSum;
-	 long double errorSumAbs;
-	 long double currentInputSum;
-	 long double currentWeightSum;
+	  double weightSum;
+	  double errorSumAbs;
+	  double currentInputSum;
+	  double currentWeightSum;
 
 	 Neuron(int id,int layer,int inputs,int func,bool pl,bool pl2){
 		 this->inputSum=0;
@@ -319,7 +318,7 @@ class Neuron{
 			 this->af=make_unique<ActivationFunctionLinear>();
 		 }
 	 };
-	 void setErrorSumAbs(long double es){
+	 void setErrorSumAbs( double es){
 		 this->errorSumAbs=es;
 	 }
 
@@ -327,14 +326,14 @@ class Neuron{
 		 return this->id;
 	 }
 
-	 long double aOutput(){
-		 long double aol=this->af->activationOutput(this->currentInputSum);
+	  double aOutput(){
+		  double aol=this->af->activationOutput(this->currentInputSum);
 		 this->ao=aol;
 		 return aol;
 	 }
-	 void finalOutput(long double expected,int iteration, int olocation,bool showOutput,double& eSum){
+	 void finalOutput( double expected,int iteration, int olocation,bool showOutput,double& eSum){
 		 try{
-			 long double es=sqrt(pow(expected-this->ao,2));
+			  double es=sqrt(pow(expected-this->ao,2));
 			 this->setErrorSumAbs(es);
 			 eSum+=es;
 			 if(showOutput){
@@ -346,7 +345,7 @@ class Neuron{
 		 }
 	 }
 
-	 long double getOutputStatic(){
+	  double getOutputStatic(){
 		 return this->ao;
 	 }
 
@@ -367,7 +366,7 @@ class Neuron{
 			 exit(EXIT_FAILURE);
 		 }
 	 }
-	 void setInput(int index,int fromCheck,long double input){
+	 void setInput(int index,int fromCheck, double input){
 		 try{
 				 if(this->in.at(index)->fromNeuron==fromCheck){
 					 if(index==0){
@@ -392,13 +391,14 @@ class Neuron{
 		 }
 	 }
 
-	 void outputNeuronCalcError(int inputIndex,unique_ptr<Neuron> & pNeuron,long double lRate,long double momentum,bool eInc,long double bias){
+	 void outputNeuronCalcError(int inputIndex,int pNeuronId, double pNeuronOutput, double lRate, double momentum,bool eInc, double bias){
 			 try{
-				if(this->in.at(inputIndex)->fromNeuron==pNeuron->id){
+				int lFromNeuron=this->in.at(inputIndex)->fromNeuron;
+				if(lFromNeuron==pNeuronId){
 					if(eInc){lRate*=9.6;};
-					long double delta=this->errorSumAbs*0.49*af->dFunction(this->currentInputSum);
-					long double error=delta*lRate*pNeuron.get()->ao;
-					long double bv=delta*lRate*bias;
+					 double delta=this->errorSumAbs*0.49*af->dFunction(this->currentInputSum);
+					 double error=fabs(delta*lRate*pNeuronOutput*-1);
+					 double bv=fabs(delta*lRate*bias*-1);
 					this->in.at(inputIndex)->sumDelta(delta);
 					this->in.at(inputIndex)->sumBias(bv);
 					this->in.at(inputIndex)->sumError(error);
@@ -411,15 +411,14 @@ class Neuron{
 				 exit(EXIT_FAILURE);
 			 }
 		 }
-		 void hiddenNeuronCalcError(int inputIndex,int cnliIn,unique_ptr<Neuron> & pNeuron,unique_ptr<Neuron> & nNeuron,long double lRate,long double momentum,bool eInc,long double bias){
+		 void hiddenNeuronCalcError(int inputIndex,int nNeuronInputNeuronId, double cnliInDelta, double pNeuronOutput,int pNeuronId, double lRate, double momentum,bool eInc, double bias){
 			 try{
 				 int pNeuronFromNeuron=this->in.at(inputIndex)->fromNeuron;
-				 int nFromNeuron=nNeuron.get()->in.at(cnliIn)->fromNeuron;
-				 if(pNeuronFromNeuron==pNeuron->id && nFromNeuron==this->id){
+				 if(pNeuronFromNeuron==pNeuronId && nNeuronInputNeuronId==this->id){
 					 if(eInc){lRate*=4.35;};
-					 long double delta=fabs((nNeuron.get()->in.at(cnliIn)->delta*this->currentWeightSum*this->af->dFunction(this->currentInputSum))*-1);
-					 long double error=delta*lRate*pNeuron->getOutputStatic();
-					 long double bv=delta*lRate*bias;
+					  double delta=fabs(cnliInDelta*this->currentWeightSum*this->af->dFunction(this->currentInputSum)*-1);
+					  double error=fabs(delta*lRate*pNeuronOutput*-1);
+					  double bv=fabs(delta*lRate*bias*-1);
 					 this->in.at(inputIndex)->sumDelta(delta);
 					 this->in.at(inputIndex)->sumBias(bv);
 					 this->in.at(inputIndex)->sumError(error);
@@ -434,7 +433,7 @@ class Neuron{
 		 }
 
 
-	 long double getDelta(){
+	  double getDelta(){
 		 return this->delta;
 	 }
 
@@ -459,9 +458,9 @@ struct NeuralSkeleton{
 	 int sampleMax=150;
 	 int sampleMin=10;
 	 vector<vector<int>> neuralMap;
-	 vector<vector<long double>>inputData;
-	 vector<vector<long double>>idealData;
-	 vector<long double> weights;
+	 vector<vector< double>>inputData;
+	 vector<vector< double>>idealData;
+	 vector< double> weights;
 	 int neuronMapSize;
 	 int neuronMapSizeM;
 	 int inputDataSize;
@@ -499,7 +498,7 @@ struct NeuralSkeleton{
 		 }
 	 };
 
-	 void setData(vector<vector<long double>>inputData,vector<vector<long double>>idealData){
+	 void setData(vector<vector< double>>inputData,vector<vector< double>>idealData){
 		 if(inputData.size()>0 && idealData.size()>0){
 			 this->inputData=inputData;
 			 this->idealData=idealData;
@@ -511,16 +510,16 @@ struct NeuralSkeleton{
 		 this->inputData.push_back({0.101,0.16152,0.11196});
 		 this->inputData.push_back({0.108,0.13089,0.13335});
 		 for(int u=2;u<m;u++){
-			 long double ud=(long double)u;
-			 long double d1=abs(sin(((this->inputData.at(u-1).at(0)+this->inputData.at(u-2).at(0)+(0.1/ud))/2)+((0.01/(ud/m))*fRand(0.1, 0.005))+ud*0.01));
-			 long double d2=abs(sin(((this->inputData.at(u-1).at(1)+this->inputData.at(u-2).at(1)+(0.1/ud))/2)+((0.01/(ud/m))*fRand(0.07, 0.001))+ud*0.011));
-			 long double d3=abs(sin(((this->inputData.at(u-1).at(2)+this->inputData.at(u-2).at(2)+(0.1/ud))/2)+((0.01/(ud/m))*fRand(0.11, 0.007))+ud*0.0111));
+			  double ud=( double)u;
+			  double d1=abs(sin(((this->inputData.at(u-1).at(0)+this->inputData.at(u-2).at(0)+(0.1/ud))/2)+((0.01/(ud/m))*fRand(0.1, 0.005))+ud*0.01));
+			  double d2=abs(sin(((this->inputData.at(u-1).at(1)+this->inputData.at(u-2).at(1)+(0.1/ud))/2)+((0.01/(ud/m))*fRand(0.07, 0.001))+ud*0.011));
+			  double d3=abs(sin(((this->inputData.at(u-1).at(2)+this->inputData.at(u-2).at(2)+(0.1/ud))/2)+((0.01/(ud/m))*fRand(0.11, 0.007))+ud*0.0111));
 			 this->inputData.push_back({d1,d2,d3});
 		 }
 		 int iSize=this->inputData.size();
 
 		 for(int t=0;t<iSize;t++){
-			 long double ival=((this->inputData.at(t).at(0)+this->inputData.at(t).at(1)+this->inputData.at(t).at(2))/3);
+			  double ival=((this->inputData.at(t).at(0)+this->inputData.at(t).at(1)+this->inputData.at(t).at(2))/3);
 			 this->idealData.push_back({
 				 ival
 			 });
@@ -531,7 +530,7 @@ struct NeuralSkeleton{
 		 this->idealDataSizeM=this->idealDataSize-1;
 	 }
 
-	 void setInputWeight(long double weight){
+	 void setInputWeight( double weight){
 		 try{
 			 this->weights.push_back(weight);
 		 }catch (const std::exception& ex) {
@@ -582,11 +581,11 @@ class NeuralNetwork{
 	  double totalReturnValue;
 	  double totalReturnValueP;
 	  double totalReturnValuePR;
-	  long double totalOutput;
-	  long double errorPercentage;
-	  long double bestErrorRate;
-	  long double currentErrorValue;
-	  long double currentOutputSum;
+	   double totalOutput;
+	   double errorPercentage;
+	   double bestErrorRate;
+	   double currentErrorValue;
+	   double currentOutputSum;
 	  double bias;
 	  bool eIncreasing;
 	  int eIncreasingCount;
@@ -705,7 +704,7 @@ class NeuralNetwork{
 		  try{
 						int rLoc=rand()%(this->skeleton.inputDataSize-sample-0 + 1) + 0;
 						int cutoff=rLoc+sample;
-						long double bias=0;
+						 double bias=0;
 						bool cn=true;
 						int ic=0;
 						int icMax=3;
@@ -784,7 +783,7 @@ class NeuralNetwork{
 						}
 
 
-						if(this->nCycle>150 || this->nCycle==0){
+						if(this->nCycle>550 || this->nCycle==0){
 							double rt=(double)this->it/(double)this->skeleton.mCutoff;
 							int mc=this->skeleton.inputDataSize;
 							int bi=0;
@@ -794,8 +793,8 @@ class NeuralNetwork{
 								this->checkDataAndCleanUp(mc,false,true,true);
 								bi++;
 							}
-							if(rt<0.7){
-								this->runAnnealingTrainingRound(mc,21,111111111);
+							if(rt<0.9){
+								this->runAnnealingTrainingRound(mc,12,511111111);
 							}
 							this->nCycle=0;
 						}
@@ -808,19 +807,19 @@ class NeuralNetwork{
 
 	  }
 
-	  void runTrainingRound(int rLoc,int cutoff,long double bias,int sample,bool ls,bool stochastic){
-			while(rLoc<cutoff){
-				this->feedForward(false,rLoc);
-				this->backPropagate(bias,sample,ls);
-				if(stochastic){
-					this->learn(true);
+	  void runTrainingRound(int rLoc,int cutoff, double bias,int sample,bool ls,bool stochastic){
+
+				for(int r=rLoc;r<cutoff;r++){
+					this->feedForward(false,r);
+					this->backPropagate(bias,sample,ls);
+					if(stochastic){
+						this->learn(true);
+					}
 				}
-				rLoc++;
-			}
 
 	  }
 
-	  void runAnnealingTrainingRound(int cf,long double cycles,long double heat){
+	  void runAnnealingTrainingRound(int cf, double cycles, double heat){
 			this->runAnnealing(0, cf, heat, cycles,false);
 	  }
 
@@ -834,7 +833,6 @@ class NeuralNetwork{
 					    int layer=0;
 
 							  do{
-									  #pragma omp parallel for simd
 									  for(int c=this->layers.at(layer).at(0);c<this->layers.at(layer).at(1);c++){
 											if(layer==0){
 												this->neurons.at(c)->setInput(0,-1, this->skeleton.inputData.at(dataLocation).at(ifi));
@@ -863,56 +861,27 @@ class NeuralNetwork{
 			 }
 	  }
 
-	  void feedForwardInd(bool showOutput,int dataLocation,int nIndex,int &oDataLoc){
-		 try{
-			 if(dataLocation<this->skeleton.inputDataSize){
-				  int layer;
-				  int ifi=0;
-							layer=this->neurons.at(nIndex)->layer;
-							if(layer==0){
-								this->neurons.at(nIndex)->setInput(0,-1, this->skeleton.inputData.at(dataLocation).at(ifi));
-								ifi++;
-							}else if(layer>0){
-									int i=0;
-									for(int ix=layers.at(layer-1).at(0);ix<layers.at(layer-1).at(1);ix++){
-										this->neurons.at(nIndex)->setInput(i,ix,this->neurons.at(ix)->getOutputStatic());
-										i++;
-									}
-							}
-							this->neurons.at(nIndex)->aOutput();
-							if(layer==this->skeleton.neuronMapSizeM){
-								this->neurons.at(nIndex)->finalOutput(this->skeleton.idealData.at(dataLocation).at(oDataLoc),this->it,oDataLoc,showOutput,this->totalReturnValue);
-								oDataLoc++;
-							}
-
-			 }
-		 }catch (const std::exception& ex) {
-			 throw_line(ex.what());
-			 exit(EXIT_FAILURE);
-		 }
-	  }
-
-	  void backPropagate(long double tbias,int sample,bool ls){
+	  void backPropagate( double tbias,int sample,bool ls){
 		  try{
 			  int cNeuronIndex=this->neuronsVSizeM;
 			  tbias+=this->bias;
-			  long double alr=this->skeleton.learningRate;
+			   double alr=this->skeleton.learningRate;
 			  if(ls){
 				  alr*=0.0000001;
 			  }else{
-				  alr*=((long double)sample/(long double)skeleton.inputDataSize)*1.3333;
+				  alr*=(( double)sample/( double)skeleton.inputDataSize)*1.3333;
 			  }
 
 				  for(int layer=this->skeleton.neuronMapSizeM;layer>0;layer--){
 					  if(layer==this->skeleton.neuronMapSizeM){
 						  do{
 								  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
-
-								  #pragma omp simd
 								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0;pi--){
 									  if(previousNeuronId>-1){
-										  this->neurons.at(cNeuronIndex)->outputNeuronCalcError(pi, this->neurons.at(previousNeuronId), alr, this->skeleton.momentum, this->eIncreasing,tbias);
-										  previousNeuronId--;
+											  int pNeuronId=this->neurons.at(previousNeuronId)->id;
+											   double pNeuronOutput=this->neurons.at(previousNeuronId)->getOutputStatic();
+											  this->neurons.at(cNeuronIndex)->outputNeuronCalcError(pi,pNeuronId,pNeuronOutput,alr,this->skeleton.momentum,this->eIncreasing,tbias);
+											  previousNeuronId--;
 									  }
 								  };
 
@@ -931,11 +900,13 @@ class NeuralNetwork{
 
 							  do{
 								  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
-
-								  #pragma omp simd
 								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0;pi--){
 										  if(previousNeuronId>-1){
-											  this->neurons.at(cNeuronIndex)->hiddenNeuronCalcError(pi,nlin,this->neurons.at(previousNeuronId),this->neurons.at(nextLayerNeuronId),alr,this->skeleton.momentum,this->eIncreasing,tbias);
+											  int pNeuronId=this->neurons.at(previousNeuronId)->id;
+											   double pNeuronOutput=this->neurons.at(previousNeuronId)->getOutputStatic();
+											   double nNeuronDelta=this->neurons.at(nextLayerNeuronId)->in.at(nlin)->delta;
+											  int nNeuronId=this->neurons.at(nextLayerNeuronId)->in.at(nlin)->fromNeuron;
+											  this->neurons.at(cNeuronIndex)->hiddenNeuronCalcError(pi,nNeuronId,nNeuronDelta,pNeuronOutput,pNeuronId,alr,this->skeleton.momentum,this->eIncreasing,tbias);
 											  previousNeuronId--;
 										  }
 								  };
@@ -1028,16 +999,16 @@ class NeuralNetwork{
 		     }
 	  }
 
-	  void runAnnealing(int rLoc, int cutoff,long double heat,long double cycles,bool ca){
-			long double currentTemp=heat;
-			long double previusTemp=heat;
-			long double stoptemp=heat*0.01;
-			long double pError=this->totalReturnValueP;
-			long double oError=pError;
-			long double ratio = exp(log(stoptemp / heat) / (cycles - 1));
+	  void runAnnealing(int rLoc, int cutoff, double heat, double cycles,bool ca){
+			 double currentTemp=heat;
+			 double previusTemp=heat;
+			 double stoptemp=heat*0.01;
+			 double pError=this->totalReturnValueP;
+			 double oError=pError;
+			 double ratio = exp(log(stoptemp / heat) / (cycles - 1));
 			bool stop=false;
-			long double stopRate=10000;
-			long double stopRatet=0.01;
+			 double stopRate=10000;
+			 double stopRatet=0.01;
 			int eLoc2=rLoc;
 			int ai=0;
 			int c=0;
@@ -1080,7 +1051,7 @@ class NeuralNetwork{
 			this->eIncreasing=false;
 		}
 
-		void randomize(long double currentTemp,long double previusTemp,long double startTemp){
+		void randomize( double currentTemp, double previusTemp, double startTemp){
 			int i=0;
 			int ns=this->neurons.size();
 			double rProb=0;
@@ -1096,7 +1067,7 @@ class NeuralNetwork{
 						}
 					}
 					for(int c=0;c<si;c++){
-						long double add = 0.0000005 - fRand(0.0000003,0.0000001);
+						 double add = 0.0000005 - fRand(0.0000003,0.0000001);
 						add /= startTemp;
 						add *= currentTemp;
 						this->neurons.at(i)->in.at(c)->backupWeight();
