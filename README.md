@@ -1,5 +1,6 @@
-# Neural computing: Multilayer Neural Network with simulated annealing - beta
-Low level Multilayer backpropagation neural network developed and optimized with c++
+# Neural computing: Deep Learning Multilayer Neural Network
+Developed and optimized with c++
+NOTE Optimized and compiled with: -O3 -Ofast -march=native -mtune=native -ftree-vectorize -ffast-math -frename-registers -fopenmp -std=c++17
 
 ## Features:
 - Easy to edit multilayer network for neural computing
@@ -7,7 +8,7 @@ Low level Multilayer backpropagation neural network developed and optimized with
 - Unlimited input, hidden and output neurons
 - Using two backpropagation learning systems (Gradient descent, Stochastic gradient descent)
 - Simulated annealing (global optimal solution)
-- **UPDATE: Improved performance: capable of training one million rows of 4000 item training set in 35 minutes (500k in 17). Tested with slowest ryzen 1400, gycwin compiler with: g++ -O3 -Ofast -ftree-vectorize -ffast-math -frename-registers**
+- Very high performance single thread. Able to go through 50 000 training iterations in one minute
 - Saving and loading network from binary file
 - Advanced testing training data generator (lots of hard peaks and valleys to learn)
 

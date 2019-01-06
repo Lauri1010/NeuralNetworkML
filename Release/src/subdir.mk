@@ -17,7 +17,7 @@ CPP_DEPS += \
 src/%.o: ../src/%.cpp
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cygwin C++ Compiler'
-	g++ -I"C:\Users\Lauri\Desktop\workspace\NeuralM\Includes\cereal\include" -O3 -Ofast -ftree-vectorize -ffast-math -frename-registers -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
+	g++ -I"C:\Users\Lauri\Desktop\workspace\NeuralM\Includes\cereal\include" -O3 -Ofast -march=native -mtune=native -ftree-vectorize -ffast-math -frename-registers -fopenmp -Wall -c -fmessage-length=0 -std=c++17 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

@@ -36,6 +36,7 @@
 #include <chrono>
 #include <iostream>
 #include <iterator>
+#include <omp.h>
 using namespace std;
 
 class my_exception : public std::runtime_error {
@@ -265,23 +266,23 @@ class Input{
 
 class Neuron{
 	 public:
-	  double inputSum;
-	  double outputSum;
+	 double inputSum;
+	 double outputSum;
 	 int layer;
 	 bool outputLayer;
 	 int id;
 	 bool func;
-	  double wInput;
-	  double delta;
+	 double wInput;
+	 double delta;
 	 int inputs;
-	  double finalOutputError;
-	  double ao;
+	 double finalOutputError;
+	 double ao;
 	 vector<unique_ptr<Input>> in;
 	 unique_ptr<ActivationFunction> af;
-	  double weightSum;
-	  double errorSumAbs;
-	  double currentInputSum;
-	  double currentWeightSum;
+	 double weightSum;
+	 double errorSumAbs;
+	 double currentInputSum;
+	 double currentWeightSum;
 
 	 Neuron(int id,int layer,int inputs,int func,bool pl,bool pl2){
 		 this->inputSum=0;
@@ -337,7 +338,7 @@ class Neuron{
 			 this->setErrorSumAbs(es);
 			 eSum+=es;
 			 if(showOutput){
-				 cout << "Iteration: " << iteration << " expected at neuron"<< olocation << ": " << expected << " output: "<< this->ao <<endl;
+				 cout << "Iteration: " << iteration << " expected at neuron"<< olocation << ": " << expected << " output: "<< this->ao <<'\n';
 			 }
 		 }catch (const std::exception& ex) {
 		 			 throw_line(ex.what());
@@ -353,7 +354,7 @@ class Neuron{
 		 try{
 			 if(this->layer>0){
 				 int fromNeuron=inputIdStart;
-				 for(int i=0;i<this->inputs;i++){
+				 for(int i=0;i<this->inputs;++i){
 						this->in.push_back(make_unique<Input>(inputId,this->layer,fromNeuron));
 						fromNeuron++;
 				 }
@@ -458,8 +459,8 @@ struct NeuralSkeleton{
 	 int sampleMax=150;
 	 int sampleMin=10;
 	 vector<vector<int>> neuralMap;
-	 vector<vector< double>>inputData;
-	 vector<vector< double>>idealData;
+	 vector<vector<double>>inputData;
+	 vector<vector<double>>idealData;
 	 vector< double> weights;
 	 int neuronMapSize;
 	 int neuronMapSizeM;
@@ -474,7 +475,7 @@ struct NeuralSkeleton{
 			 this->nNeurons=neuronsList.size();
 			 int f=0;
 			 int s=0;
-			 for(int a = 0; a < this->nNeurons; a++){
+			 for(int a = 0; a < this->nNeurons; ++a){
 				 if(a>0){
 					 f=this->neuronsList.at(a);
 					 s=this->neuronsList.at(a-1);
@@ -509,7 +510,7 @@ struct NeuralSkeleton{
 		 int m=4000;
 		 this->inputData.push_back({0.101,0.16152,0.11196});
 		 this->inputData.push_back({0.108,0.13089,0.13335});
-		 for(int u=2;u<m;u++){
+		 for(int u=2;u<m;++u){
 			  double ud=( double)u;
 			  double d1=abs(sin(((this->inputData.at(u-1).at(0)+this->inputData.at(u-2).at(0)+(0.1/ud))/2)+((0.01/(ud/m))*fRand(0.1, 0.005))+ud*0.01));
 			  double d2=abs(sin(((this->inputData.at(u-1).at(1)+this->inputData.at(u-2).at(1)+(0.1/ud))/2)+((0.01/(ud/m))*fRand(0.07, 0.001))+ud*0.011));
@@ -518,7 +519,7 @@ struct NeuralSkeleton{
 		 }
 		 int iSize=this->inputData.size();
 
-		 for(int t=0;t<iSize;t++){
+		 for(int t=0;t<iSize;++t){
 			  double ival=((this->inputData.at(t).at(0)+this->inputData.at(t).at(1)+this->inputData.at(t).at(2))/3);
 			 this->idealData.push_back({
 				 ival
@@ -581,11 +582,11 @@ class NeuralNetwork{
 	  double totalReturnValue;
 	  double totalReturnValueP;
 	  double totalReturnValuePR;
-	   double totalOutput;
-	   double errorPercentage;
-	   double bestErrorRate;
-	   double currentErrorValue;
-	   double currentOutputSum;
+	  double totalOutput;
+	  double errorPercentage;
+	  double bestErrorRate;
+	  double currentErrorValue;
+	  double currentOutputSum;
 	  double bias;
 	  bool eIncreasing;
 	  int eIncreasingCount;
@@ -616,7 +617,6 @@ class NeuralNetwork{
 		  this->layerSize=0;
 		  this->bias=0;
 		  this->nCycle=0;
-		  cout.precision(14);
 	  }
 
 	  void createNetwork(){
@@ -630,17 +630,17 @@ class NeuralNetwork{
 		    	 bool pl=false;
 		    	 bool pl2=false;
 				 while(layer<this->skeleton.neuronMapSize){
-					 	     if(layer==1){func++;};
-					 	     if(layer==this->skeleton.neuronMapSizeM){func++;};
-					 	 	 for(int i=0;i<this->skeleton.neuralMap.at(layer).at(0);i++){
+					 	     if(layer==1){++func;};
+					 	     if(layer==this->skeleton.neuronMapSizeM){++func;};
+					 	 	 for(int i=0;i<this->skeleton.neuralMap.at(layer).at(0);++i){
 						 	 	 this->neurons.push_back(make_unique<Neuron>(id,layer,this->skeleton.neuralMap.at(layer).at(1),func,pl,pl2));
-					 			 id++;
-					 			 indx++;
+						 	 	 ++id;
+						 	 	 ++indx;
 					 	 	 }
 					 	 	 layers.push_back({sId,id,indx});
 					 	 	 indx=0;
 					 	 	 sId=id;
-					 	 	 layer++;
+					 	 	 ++layer;
 					 	 	 if(layer==this->skeleton.neuronMapSizeM-1){
 					 	 		pl=true;
 					 	 	 }
@@ -659,7 +659,7 @@ class NeuralNetwork{
 			    	if(lr>0){lr-=1;};
 			    	n->setInputs(inputId,layers.at(lr).at(0), layers.at(lr).at(1));
 			     }
-				 cout << "Network created "<< endl;
+				 cout << "Network created "<< '\n';
 		     }else{
 		    	 throw_line("Improperly constructed neural network");
 		    	 exit(EXIT_FAILURE);
@@ -675,9 +675,9 @@ class NeuralNetwork{
 		     int wCount=0;
 			 for(int prin=0;prin<this->neuronsVSize;prin++){
 				  int lSize=this->neurons.at(prin)->in.size();
-				  for(int li=0;li<lSize;li++){
+				  for(int li=0;li<lSize;++li){
 					  this->neurons.at(prin)->in.at(li)->weight=skeleton.weights.at(wCount);
-					  wCount++;
+					  ++wCount;
 				  }
 			 }
 		   }catch (const std::exception& ex) {
@@ -704,20 +704,14 @@ class NeuralNetwork{
 		  try{
 						int rLoc=rand()%(this->skeleton.inputDataSize-sample-0 + 1) + 0;
 						int cutoff=rLoc+sample;
-						 double bias=0;
+						double bias=0;
 						bool cn=true;
-						int ic=0;
-						int icMax=3;
-						int ci=0;
+/*						int icMax=3;
 						int cMax=14;
-						int sti=0;
-						int stiMax=3;
-						int si=0;
-						int siMax=5;
-						int li=0;
-						int liMax=3;
-
-						while(ic<icMax && cn){
+						int stiMax=3;*/
+						int siMax=4;
+/*
+						for(int ic=0;ic<icMax && cn;++ic){
 							runTrainingRound(rLoc,cutoff,bias,sample,false,false);
 							cn=this->checkDataAndCleanUp(sample,false,true,true);
 							if(ic==0){
@@ -728,10 +722,9 @@ class NeuralNetwork{
 							if(this->eIncreasing){
 										bias+=0.1333;
 							}
-							ic++;
 						}
 
-						while(sti<stiMax && this->eIncreasing && cn){
+						for(int sti=0;sti<stiMax && cn;++sti){
 							runTrainingRound(rLoc,cutoff,bias,sample,false,false);
 							cn=this->checkDataAndCleanUp(sample,false,true,true);
 							if(sti==0){
@@ -739,13 +732,12 @@ class NeuralNetwork{
 							}else{
 								this->learn(false);
 							}
-							sti++;
 							if(this->eIncreasing){
 								bias+=0.1333;
 							}
 						}
 
-						while(ci<cMax && !this->eIncreasing && cn){
+						for(int ci=0;ci<cMax && !this->eIncreasing && cn;++ci){
 							runTrainingRound(rLoc,cutoff,bias,sample,false,false);
 							cn=this->checkDataAndCleanUp(sample,false,true,true);
 							if(ci==0){
@@ -753,22 +745,21 @@ class NeuralNetwork{
 							}else{
 								this->learn(false);
 							}
-							ci++;
 							if(this->eIncreasing){
 								bias+=0.1333;
 							}
 						}
+*/
 
-						while(si<siMax && cn){
+						for(int si=0;si<siMax && cn;++si){
 							runTrainingRound(rLoc,cutoff,bias,sample,false,true);
 							cn=this->checkDataAndCleanUp(sample,false,true,true);
 							if(this->eIncreasing){
 								bias+=0.1333;
 							}
-							si++;
 						}
 
-						while(li<liMax && cn){
+/*						for(int li=0;li<liMax && cn;++li){
 							runTrainingRound(rLoc,cutoff,bias,sample,false,false);
 							cn=this->checkDataAndCleanUp(sample,false,true,true);
 							if(li==0){
@@ -779,22 +770,20 @@ class NeuralNetwork{
 							if(this->eIncreasing){
 										bias+=0.1333;
 							}
-							li++;
-						}
+						}*/
 
 
-						if(this->nCycle>550 || this->nCycle==0){
+						if(this->nCycle>1100 || this->nCycle==0){
 							double rt=(double)this->it/(double)this->skeleton.mCutoff;
 							int mc=this->skeleton.inputDataSize;
-							int bi=0;
-							int biMax=5;
-							while(bi<biMax){
+							int biMax=1;
+							#pragma omp simd
+							for(int bi=0;bi<biMax;++bi){
 								runTrainingRound(0,mc,bias,mc,true,true);
-								this->checkDataAndCleanUp(mc,false,true,true);
-								bi++;
+								this->checkDataAndCleanUp(mc,false,false,false);
 							}
-							if(rt<0.9){
-								this->runAnnealingTrainingRound(mc,12,511111111);
+							if(rt>0.25 && rt<0.5){
+								this->runAnnealingTrainingRound(mc,21,511111111);
 							}
 							this->nCycle=0;
 						}
@@ -808,8 +797,8 @@ class NeuralNetwork{
 	  }
 
 	  void runTrainingRound(int rLoc,int cutoff, double bias,int sample,bool ls,bool stochastic){
-
-				for(int r=rLoc;r<cutoff;r++){
+				#pragma omp simd
+				for(int r=rLoc;r<cutoff;++r){
 					this->feedForward(false,r);
 					this->backPropagate(bias,sample,ls);
 					if(stochastic){
@@ -833,15 +822,16 @@ class NeuralNetwork{
 					    int layer=0;
 
 							  do{
+									  #pragma omp simd
 									  for(int c=this->layers.at(layer).at(0);c<this->layers.at(layer).at(1);c++){
 											if(layer==0){
 												this->neurons.at(c)->setInput(0,-1, this->skeleton.inputData.at(dataLocation).at(ifi));
-												ifi++;
+												++ifi;
 											}else if(layer>0){
 												int i=0;
 												for(int ix=layers.at(layer-1).at(0);ix<layers.at(layer-1).at(1);ix++){
 													this->neurons.at(c)->setInput(i,ix,this->neurons.at(ix)->getOutputStatic());
-													i++;
+													++i;
 												}
 											}
 											this->neurons.at(c)->aOutput();
@@ -850,7 +840,7 @@ class NeuralNetwork{
 												  oDataLoc++;
 											}
 									  }
-									  layer++;
+									  ++layer;
 							  }while(layer<this->skeleton.neuronMapSize);
 
 					 }catch (const std::exception& ex) {
@@ -867,26 +857,27 @@ class NeuralNetwork{
 			  tbias+=this->bias;
 			   double alr=this->skeleton.learningRate;
 			  if(ls){
-				  alr*=0.0000001;
+				  alr*=0.0002591;
 			  }else{
 				  alr*=(( double)sample/( double)skeleton.inputDataSize)*1.3333;
 			  }
 
-				  for(int layer=this->skeleton.neuronMapSizeM;layer>0;layer--){
+				  for(int layer=this->skeleton.neuronMapSizeM;layer>0;--layer){
 					  if(layer==this->skeleton.neuronMapSizeM){
 						  do{
 								  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
-								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0;pi--){
+								  #pragma omp simd
+								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0;--pi){
 									  if(previousNeuronId>-1){
 											  int pNeuronId=this->neurons.at(previousNeuronId)->id;
-											   double pNeuronOutput=this->neurons.at(previousNeuronId)->getOutputStatic();
+											  double pNeuronOutput=this->neurons.at(previousNeuronId)->getOutputStatic();
 											  this->neurons.at(cNeuronIndex)->outputNeuronCalcError(pi,pNeuronId,pNeuronOutput,alr,this->skeleton.momentum,this->eIncreasing,tbias);
-											  previousNeuronId--;
+											  --previousNeuronId;
 									  }
 								  };
 
 							 // Move on to next neuron
-							 cNeuronIndex--;
+							--cNeuronIndex;
 						  }while(this->neurons.at(cNeuronIndex)->layer==layer);
 					  }else if(layer>0){
 						  // The next neuron input index used to link to upper input id of the fromNeuron
@@ -900,7 +891,8 @@ class NeuralNetwork{
 
 							  do{
 								  int previousNeuronId=this->layers.at(layer-1).at(1)-1;
-								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0;pi--){
+								  #pragma omp simd
+								  for(int pi=this->layers.at(layer-1).at(2)-1;pi>=0;--pi){
 										  if(previousNeuronId>-1){
 											  int pNeuronId=this->neurons.at(previousNeuronId)->id;
 											   double pNeuronOutput=this->neurons.at(previousNeuronId)->getOutputStatic();
@@ -911,13 +903,13 @@ class NeuralNetwork{
 										  }
 								  };
 
-								  nextLayerNeuronId--;
-								  nLayerCount++;
+								  --nextLayerNeuronId;
+								  ++nLayerCount;
 							  }while(nLayerCount<neuronsInNextLayer);
 
-							 nlin--;
+							  --nlin;
 							 // Move on to next neuron
-							 cNeuronIndex--;
+							 --cNeuronIndex;
 						  }while(this->neurons.at(cNeuronIndex)->layer==layer);
 					  }
 			  }
@@ -935,20 +927,20 @@ class NeuralNetwork{
 		  int cNeuronIndex=this->neuronsVSizeM;
 		  int layer=this->neurons.at(cNeuronIndex)->layer;
 		  do{
-				  for(int c=0;c<neurons.at(cNeuronIndex)->inputs;c++){
+				  for(int c=0;c<neurons.at(cNeuronIndex)->inputs;++c){
 					  this->neurons.at(cNeuronIndex)->in.at(c)->adjustWeights(this->skeleton.learningRate, this->skeleton.momentum,this->eIncreasing,start);
 				  }
 			  	  if(layer==this->skeleton.neuronMapSizeM){
 					 this->neurons.at(cNeuronIndex)->errorSumAbs=0;
 			  	  }
-				  cNeuronIndex--;
+			  	  --cNeuronIndex;
 				  layer=this->neurons.at(cNeuronIndex)->layer;
 		  }while(layer>0);
 
 	  }
 
 	  void calcFinalError(){
-		  cout << "Iteration: "<< this->it << " Final deviation from ideal results "<< this->totalReturnValue << endl;
+		  cout << "Iteration: "<< this->it << " Final deviation from ideal results "<< this->totalReturnValue << '\n';
 	  }
 
 	  void rollback(){
@@ -989,7 +981,7 @@ class NeuralNetwork{
 			 this->totalReturnValuePR=this->totalReturnValueP/(double)sample;
 			 if(!suppress){
 				 this->it++;
-				 cout << "Iteration: "<< this->it << " current deviation from ideal results: "<< this->totalReturnValuePR << endl;
+				 printf("Iteration: %i current deviation from ideal results: %.16g  \n",this->it,this->totalReturnValuePR);
 			 }
 		     this->totalReturnValue=0;
 		     if(this->totalReturnValuePR < this->skeleton.av){
@@ -1000,15 +992,15 @@ class NeuralNetwork{
 	  }
 
 	  void runAnnealing(int rLoc, int cutoff, double heat, double cycles,bool ca){
-			 double currentTemp=heat;
-			 double previusTemp=heat;
-			 double stoptemp=heat*0.01;
-			 double pError=this->totalReturnValueP;
-			 double oError=pError;
-			 double ratio = exp(log(stoptemp / heat) / (cycles - 1));
+			double currentTemp=heat;
+			double previusTemp=heat;
+			double stoptemp=heat*0.01;
+			double pError=this->totalReturnValueP;
+			double oError=pError;
+			double ratio = exp(log(stoptemp / heat) / (cycles - 1));
 			bool stop=false;
-			 double stopRate=10000;
-			 double stopRatet=0.01;
+			double stopRate=10000;
+		    double stopRatet=0.01;
 			int eLoc2=rLoc;
 			int ai=0;
 			int c=0;
@@ -1024,9 +1016,9 @@ class NeuralNetwork{
 						}
 						rLoc=eLoc2;
 						cn=this->checkDataAndCleanUp(cutoff,true,true,false);
-						ai++;
+						++ai;
 						pError=this->totalReturnValueP;
-						cout << "Annealing: "<< ai << " current deviation from ideal results: "<< this->totalReturnValuePR << endl;
+						printf("Annealing: %i current deviation from ideal results: %.16g  \n",ai,this->totalReturnValuePR);
 
 						stopRate=pError/oError;
 						if(stopRate<stopRatet || pError <= this->skeleton.av || !cn){
@@ -1040,7 +1032,7 @@ class NeuralNetwork{
 						if(ai>10000000){
 							stop=true;
 						}
-					c++;
+					++c;
 				}while(c < cycles && !stop);
 
 				previusTemp=currentTemp;

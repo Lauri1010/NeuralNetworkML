@@ -83,7 +83,7 @@
                             							
                             <tool id="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.exe.debug.1642725916" name="Cygwin C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.exe.debug">
                                 								
-                                <option id="gnu.cpp.link.option.flags.371462400" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="" valueType="string"/>
+                                <option id="gnu.cpp.link.option.flags.371462400" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="-fopenmp" valueType="string"/>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.597394485" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
                                     									
@@ -165,7 +165,7 @@
                                 								
                                 <option id="gnu.cpp.compiler.option.dialect.std.1861521039" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
                                 								
-                                <option id="gnu.cpp.compiler.option.other.other.747518900" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0" valueType="string"/>
+                                <option id="gnu.cpp.compiler.option.other.other.747518900" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -std=c++17" valueType="string"/>
                                 								
                                 <option id="gnu.cpp.compiler.option.include.paths.1727231083" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
                                     									
@@ -173,7 +173,7 @@
                                     								
                                 </option>
                                 								
-                                <option id="gnu.cpp.compiler.option.optimization.flags.1215060595" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" useByScannerDiscovery="false" value="-Ofast -ftree-vectorize -ffast-math -frename-registers" valueType="string"/>
+                                <option id="gnu.cpp.compiler.option.optimization.flags.1215060595" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" useByScannerDiscovery="false" value="-Ofast -march=native -mtune=native -ftree-vectorize -ffast-math -frename-registers -fopenmp" valueType="string"/>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin.831853537" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input.cygwin"/>
                                 							
@@ -185,7 +185,7 @@
                                 								
                                 <option id="gnu.c.compiler.cygwin.exe.release.option.debugging.level.1067054881" name="Debug Level" superClass="gnu.c.compiler.cygwin.exe.release.option.debugging.level" useByScannerDiscovery="false" value="gnu.c.debugging.level.none" valueType="enumerated"/>
                                 								
-                                <option id="gnu.c.compiler.option.misc.other.901061316" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0 -fopenmp" valueType="string"/>
+                                <option id="gnu.c.compiler.option.misc.other.901061316" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0" valueType="string"/>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin.2032458015" superClass="cdt.managedbuild.tool.gnu.c.compiler.input.cygwin"/>
                                 							
@@ -195,7 +195,7 @@
                             							
                             <tool id="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.exe.release.103749896" name="Cygwin C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.cygwin.exe.release">
                                 								
-                                <option id="gnu.cpp.link.option.flags.349964342" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="" valueType="string"/>
+                                <option id="gnu.cpp.link.option.flags.349964342" name="Linker flags" superClass="gnu.cpp.link.option.flags" useByScannerDiscovery="false" value="-fopenmp" valueType="string"/>
                                 								
                                 <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.87886364" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
                                     									
