@@ -8,7 +8,7 @@ NOTE Optimized and compiled with: -O3 -Ofast -march=native -mtune=native -ftree-
 - Unlimited input, hidden and output neurons
 - Using two backpropagation learning systems (Gradient descent, Stochastic gradient descent)
 - Simulated annealing (global optimal solution)
-- Very high performance single thread. Able to go through 50 000 training iterations in one minute
+- Very high performance single thread. Able to go through 315000 training iterations (stochastic) in one minute
 - Saving and loading network from binary file
 - Advanced testing training data generator (lots of hard peaks and valleys to learn)
 
