@@ -1,5 +1,5 @@
 # Neural computing: Multilayer Neural Network with simulated annealing - beta
-Low level Multilayer backpropagation neural network developed and optimized with c++
+Low level Multilayer backpropagation neural network developed and optimized with c++. Note that the development branch may be signifigantly more advanced, untill all of the changes are pulled to the master (will update this branch once in two months as a release). 
 
 ## Features:
 - Easy to edit multilayer network for neural computing
