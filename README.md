@@ -1,6 +1,4 @@
 # Neural computing: Deep Learning Multilayer Neural Network
-Developed and optimized with c++.
-NOTE Optimized and compiled with: -O3 -Ofast -march=native -mtune=native -ftree-vectorize -ffast-math -frename-registers -fopenmp -std=c++17
 
 **The principle in predictions**: 
 First load training data to JSON (from a database for instance) in the provided format. Then use the saved binary of the network after training to predict with new similar data (for instance stock index historic and future data). 
