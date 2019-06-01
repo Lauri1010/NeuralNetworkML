@@ -47,7 +47,7 @@ all: NeuralM.exe
 NeuralM.exe: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: Cygwin C++ Linker'
-	g++  -o "NeuralM.exe" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -fopenmp -o "NeuralM.exe" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

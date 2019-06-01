@@ -18,49 +18,97 @@ int main (int argc, char *argv[]){
 		 clock_t begin = clock();
 
 		 if(param==0){
-			 NeuralSkeleton skeleton;
-			 skeleton.learningRate=0.000189180;
-			 skeleton.momentum=0.79;
-			 skeleton.mCutoff=500000;
-			 skeleton.aCutoff=480000;
-/*			 skeleton.mCutoff=5000;
-			 skeleton.aCutoff=4900;*/
-			 skeleton.sampleMax=12;
-			 skeleton.sampleMin=2;
-			 skeleton.init();
-			 skeleton.generateTrainingData();
+			 try{
+				 NeuralSkeleton skeleton;
+				 skeleton.learningRate=0.00000121111;
+				 skeleton.momentum=0.01914;
+				 skeleton.mCutoff=798500;
+				 skeleton.aCutoff=725000;
+				 skeleton.sampleMax=80;
+				 skeleton.sampleMin=3;
+				 skeleton.init();
+				 // Needs to be set even if it is overwritten
+				 skeleton.generateTrainingData();
+				 /*
+				 std::ofstream jFile("data.json",ios::out);
+				 cereal::JSONOutputArchive jArchive(jFile);
+				 jArchive(CEREAL_NVP(skeleton.inputData),CEREAL_NVP(skeleton.idealData));
+				 jFile.close();*/
+				 /*
+				 std::ofstream jFile2("ideal.json",ios::out);
+				 cereal::JSONOutputArchive jArchive2(jFile2);
+				 jArchive2(CEREAL_NVP(skeleton.idealData));
+				 jFile2.close(); */
 
-			 NeuralNetwork * nn = new NeuralNetwork(skeleton);
-			 nn->createNetwork();
-			 nn->iterate();
-			 nn->pRun();
+				 // exit(0);
 
-			 int ns=nn->neurons.size();
-			 for(int prin=0;prin<ns;prin++){
-				  int lSize=nn->neurons.at(prin)->in.size();
-				  for(int li=0;li<lSize;li++){
-					  skeleton.setInputWeight(nn->neurons.at(prin)->in.at(li)->weight);
-				  }
+				 // Note that you need to add } at the end as there is a bug in Cereal
+				 std::ifstream dataJson("data.json");
+				 cereal::JSONInputArchive jsonInputAr(dataJson);
+				 jsonInputAr(CEREAL_NVP(skeleton.inputData),CEREAL_NVP(skeleton.idealData));
+				 dataJson.close();
+
+				 /*
+				 for(unsigned int i=0;i<skeleton.inputData.size();i++){
+					 printf("location: %i input : %.16g  \n",i,skeleton.inputData.at(i).at(0));
+				 }
+
+				 for(unsigned int i=0;i<skeleton.idealData.size();i++){
+					 printf("location: %i ideal : %.16g  \n",i,skeleton.idealData.at(i).at(0));
+				 }
+				 exit(0);
+				 */
+
+
+				 unique_ptr<NeuralNetwork> nn = make_unique<NeuralNetwork>(skeleton);
+				 nn->createNetwork();
+				 nn->iterate();
+				 nn->pRun();
+
+				 int ns=nn->neurons.size();
+				 for(int prin=0;prin<ns;prin++){
+					  int lSize=nn->neurons.at(prin)->in.size();
+					  for(int li=0;li<lSize;li++){
+						  skeleton.setInputWeight(nn->neurons.at(prin)->in.at(li)->weight);
+					  }
+				 }
+				 skeleton.validateNetwork();
+
+				 std::ofstream os("out.cereal", std::ios::binary);
+				 cereal::BinaryOutputArchive oarchive(os);
+				 oarchive(skeleton);
+			 }catch (int e)
+			 {
+			     cout << "An exception occurred. Exception Nr. " << e << '\n';
 			 }
-			 skeleton.validateNetwork();
-
-			 std::ofstream os("out.cereal", std::ios::binary);
-			 cereal::BinaryOutputArchive oarchive(os);
-			 oarchive(skeleton);
-			 nn=0;
 		 }else if(param==1){
+			 try{
+			 // Note that for prediction ideal data can be zero (it is only used for training)
+			 // You can load input data in JSON format and predict with the network. You can for instance load data from database into JSON format and use it here
+			 /*
+
+			 std::ifstream inputJson("json-file-name.json");
+			 cereal::JSONInputArchive jsonInputAr(inputJson);
+			 jsonInputAr(CEREAL_NVP(skeleton.inputData));
+			 inputJson.close();
+
+			 */
+
 			 NeuralSkeleton skeleton;
 
 			 std::ifstream is("out.cereal", ios::in|ios::binary);
 			 cereal::BinaryInputArchive iarchive(is);
 			 iarchive(skeleton);
+			 skeleton.setInputDataMax();
 
-			 NeuralNetwork * nn = new NeuralNetwork(skeleton);
+			 unique_ptr<NeuralNetwork> nn = make_unique<NeuralNetwork>(skeleton);
 			 nn->createNetwork();
 			 nn->setWeights();
 			 nn->pRun();
-
-			 nn=0;
+			 }catch (int e)
+			 {
+			     cout << "An exception occurred. Exception Nr. " << e << '\n';
+			 }
 		 }
 		 clock_t end = clock();
 		 double elapsed_secs = double(end - begin) / CLOCKS_PER_SEC;
