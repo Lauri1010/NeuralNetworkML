@@ -1,5 +1,13 @@
-# Neural computing: Multilayer Neural Network with simulated annealing - beta
-Low level Multilayer backpropagation neural network developed and optimized with c++. Note that the development branch may be signifigantly more advanced, untill all of the changes are pulled to the master (will update this branch once in two months as the stable version). 
+# Neural computing: Deep Learning Multilayer Neural Network
+Developed and optimized with c++.
+NOTE Optimized and compiled with: -O3 -Ofast -march=native -mtune=native -ftree-vectorize -ffast-math -frename-registers -fopenmp -std=c++17
+
+**The principle in predictions**: 
+First load training data to JSON (from a database for instance) in the provided format. Then use the saved binary of the network after training to predict with new similar data (for instance stock index historic and future data). 
+Note that tuning for different datasets may take some time as you need to adjust the learning rate and other parameters. To improve training you need to have plenty of training data. 
+**In linux for instance:**:
+g++ -O3 -Ofast -march=native -mtune=native -ftree-vectorize -ffast-math -frename-registers -floop-nest-optimize -Wall -std=c++17 -Wall -I/home/lauri_turunen/nn/src/includes -c neuralm.cpp -o neuralm
+./neuralm 0 and ./neuralm 1 for prediction
 
 ## Features:
 - Easy to edit multilayer network for neural computing
@@ -7,7 +15,7 @@ Low level Multilayer backpropagation neural network developed and optimized with
 - Unlimited input, hidden and output neurons
 - Using two backpropagation learning systems (Gradient descent, Stochastic gradient descent)
 - Simulated annealing (global optimal solution)
-- **UPDATE: Improved performance: capable of training one million rows of 4000 item training set in 35 minutes (500k in 17). Tested with slowest ryzen 1400, gycwin compiler with: g++ -O3 -Ofast -ftree-vectorize -ffast-math -frename-registers**
+- Very high performance single thread. Able to go through 315000 training iterations (stochastic) in one minute
 - Saving and loading network from binary file
 - Advanced testing training data generator (lots of hard peaks and valleys to learn)
 
