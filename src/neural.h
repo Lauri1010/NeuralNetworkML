@@ -241,7 +241,7 @@ class Input{
 	void adjustWeights(double learningRate, double momentum,bool ei,bool start){
 		double a=this->weight;
 		if(ei){
-			this->weight +=fRand(0.0000000000001, 0.000000000000001);
+			this->weight +=fRand(0.00000000000000001, 0.0000000000000000089);
 		}
 		if(start){
 			this->weight += this->errorSumIn+this->bias;
