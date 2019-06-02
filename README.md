@@ -1,7 +1,7 @@
 # Neural computing: Deep Learning Multilayer Neural Network
 
 **The principle in predictions**: 
-First load training data to JSON (from a database for instance) in the provided format. Then use the saved binary of the network after training to predict with new similar data (for instance stock index historic and future data). 
+First start by load training data to JSON (from a database for instance) in the provided format. Then use the saved binary of the network after training to predict with new similar data (for instance stock index historic and future data). 
 Note that tuning for different datasets may take some time as you need to adjust the learning rate and other parameters. To improve training you need to have plenty of training data. 
 **In linux for instance:**:
 g++ -O3 -Ofast -march=native -mtune=native -ftree-vectorize -ffast-math -frename-registers -floop-nest-optimize -Wall -std=c++17 -Wall -I/home/lauri_turunen/nn/src/includes -c neuralm.cpp -o neuralm
