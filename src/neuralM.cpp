@@ -20,12 +20,13 @@ int main (int argc, char *argv[]){
 		 if(param==0){
 			 try{
 				 NeuralSkeleton skeleton;
-				 skeleton.learningRate=0.00000121111;
-				 skeleton.momentum=0.01914;
-				 skeleton.mCutoff=798500;
-				 skeleton.aCutoff=725000;
+				 skeleton.learningRate=0.00000019;
+				 skeleton.momentum=0.8215188;
+				 skeleton.mCutoff=500000;
+				 skeleton.m=2500;
+				 skeleton.aCutoff=320000;
 				 skeleton.sampleMax=80;
-				 skeleton.sampleMin=3;
+				 skeleton.sampleMin=8;
 				 skeleton.init();
 				 // Needs to be set even if it is overwritten
 				 skeleton.generateTrainingData();
@@ -38,17 +39,18 @@ int main (int argc, char *argv[]){
 				 std::ofstream jFile2("ideal.json",ios::out);
 				 cereal::JSONOutputArchive jArchive2(jFile2);
 				 jArchive2(CEREAL_NVP(skeleton.idealData));
-				 jFile2.close(); */
+				 jFile2.close();
 
-				 // exit(0);
+				 exit(0); */
 
-				 // Note that you need to add } at the end as there is a bug in Cereal
+				 // Note } at end of file. You may need to add it to the file
+				 /*
 				 std::ifstream dataJson("data.json");
 				 cereal::JSONInputArchive jsonInputAr(dataJson);
 				 jsonInputAr(CEREAL_NVP(skeleton.inputData),CEREAL_NVP(skeleton.idealData));
 				 dataJson.close();
 
-				 /*
+
 				 for(unsigned int i=0;i<skeleton.inputData.size();i++){
 					 printf("location: %i input : %.16g  \n",i,skeleton.inputData.at(i).at(0));
 				 }
@@ -58,7 +60,6 @@ int main (int argc, char *argv[]){
 				 }
 				 exit(0);
 				 */
-
 
 				 unique_ptr<NeuralNetwork> nn = make_unique<NeuralNetwork>(skeleton);
 				 nn->createNetwork();
@@ -83,6 +84,14 @@ int main (int argc, char *argv[]){
 			 }
 		 }else if(param==1){
 			 try{
+
+			 NeuralSkeleton skeleton;
+
+			 std::ifstream is("out.cereal", ios::in|ios::binary);
+			 cereal::BinaryInputArchive iarchive(is);
+			 iarchive(skeleton);
+			 skeleton.setInputDataMax();
+
 			 // Note that for prediction ideal data can be zero (it is only used for training)
 			 // You can load input data in JSON format and predict with the network. You can for instance load data from database into JSON format and use it here
 			 /*
@@ -93,13 +102,6 @@ int main (int argc, char *argv[]){
 			 inputJson.close();
 
 			 */
-
-			 NeuralSkeleton skeleton;
-
-			 std::ifstream is("out.cereal", ios::in|ios::binary);
-			 cereal::BinaryInputArchive iarchive(is);
-			 iarchive(skeleton);
-			 skeleton.setInputDataMax();
 
 			 unique_ptr<NeuralNetwork> nn = make_unique<NeuralNetwork>(skeleton);
 			 nn->createNetwork();

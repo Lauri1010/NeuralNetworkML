@@ -241,7 +241,7 @@ class Input{
 	void adjustWeights(double learningRate, double momentum,bool ei,bool start){
 		double a=this->weight;
 		if(ei){
-			this->weight +=fRand(0.0000000000001, 0.000000000000001);
+			this->weight +=fRand(0.00000000000000001, 0.0000000000000000089);
 		}
 		if(start){
 			this->weight += this->errorSumIn+this->bias;
@@ -305,10 +305,10 @@ class Neuron{
 		 this->finalOutputError=0;
 		 this->outputLayer=false;
 		 if(func==0){
-			 this->af=make_unique<ActivationFunctionSoftPlus>();
+			 this->af=make_unique<ActivationFunctionRectifiedRelu>();
 		 }else if(func==1){
 			 if(layer==1){
-				 this->af=make_unique<ActivationFunctionSoftPlus>();
+				 this->af=make_unique<ActivationFunctionRectifiedRelu>();
 			 }else if(layer==2){
 				 this->af=make_unique<ActivationFunctionSoftPlus>();
 			 }else if(pl){
@@ -474,6 +474,8 @@ struct NeuralSkeleton{
 	 double av=0.015;
 	 int sampleMax=20;
 	 int sampleMin=3;
+	 double bStart=90000;
+	 double bIncrease=0.001;
 	 int m=500;
 	 vector<vector<int>> neuralMap;
 	 vector<vector<double>>inputData;
@@ -747,7 +749,7 @@ class NeuralNetwork{
 			  	  	  	// double art=(double)this->skeleton.mCutoff/(double)this->it;
 						int rLoc=rand()%(this->skeleton.inputDataSize-sample-0 + 1) + 0;
 						int cutoff=rLoc+sample;
-						double bias=5000*rt;
+						double bias=skeleton.bStart*rt;
 						bool cn=true;
 						int siMax=3;
 
@@ -756,6 +758,9 @@ class NeuralNetwork{
 							cn=this->checkDataAndCleanUp(sample,false,true,true);
 							if(this->eIncreasing && si>0){
 								bias+=this->bias;
+							}
+							if(this->totalReturnValuePR>0.15 && si==0){
+								siMax*=10;
 							}
 						}
 
@@ -950,6 +955,7 @@ class NeuralNetwork{
 					 }
 				 }
 			 }
+			 this->bias+=skeleton.bIncrease;
 			 this->totalReturnValueP=this->totalReturnValue;
 			 this->totalReturnValuePR=this->totalReturnValueP/(double)sample;
 			 if(!suppress){
