@@ -20,13 +20,13 @@ int main (int argc, char *argv[]){
 		 if(param==0){
 			 try{
 				 NeuralSkeleton skeleton;
-				 skeleton.learningRate=0.0000038111111;
-				 skeleton.momentum=0.49811;
-				 skeleton.mCutoff=199850;
-				 skeleton.aCutoff=182250;
+				 skeleton.learningRate=0.00000019;
+				 skeleton.momentum=0.8215188;
+				 skeleton.mCutoff=500000;
 				 skeleton.m=2500;
-				 skeleton.sampleMax=55;
-				 skeleton.sampleMin=3;
+				 skeleton.aCutoff=320000;
+				 skeleton.sampleMax=80;
+				 skeleton.sampleMin=8;
 				 skeleton.init();
 				 // Needs to be set even if it is overwritten
 				 skeleton.generateTrainingData();
