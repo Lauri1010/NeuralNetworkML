@@ -7,7 +7,7 @@ Note that tuning for different datasets may take some time as you need to adjust
 g++ -O3 -Ofast -march=native -mtune=native -ftree-vectorize -ffast-math -frename-registers -floop-nest-optimize -Wall -std=c++17 -Wall -I/home/lauri_turunen/nn/src/includes -c neuralm.cpp -o neuralm
 ./neuralm 0 and ./neuralm 1 for prediction
 
-## Features:
+## Features in this program:
 - Easy to edit multilayer network for neural computing
 - Portable skeleton struct enables easy sharing and loading from hard disk
 - Unlimited input, hidden and output neurons
