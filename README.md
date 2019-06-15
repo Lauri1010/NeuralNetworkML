@@ -41,6 +41,7 @@ Using the setup.exe file (64 or 32).
 setup-x86_64.exe --disable-buggy-antivirus -q -P wget -P gcc-g++ -P make -P diffutils -P libmpfr-devel -P libgmp-devel -P libmpc-devel
 
 **3. Download the latest gcc**
+
 You can use home folder for instance.
 
 wget http://www.nic.funet.fi/pub/gnu/ftp.gnu.org/pub/gnu/gcc/gcc-9.1.0/gcc-9.1.0.tar.gz 
