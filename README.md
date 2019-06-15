@@ -42,7 +42,7 @@ oarchive(skeleton);
 
 ```
 
-Trained visualized:
+**An example after 30 seconds of training**
 
 ![Neural network](https://www.ttaito.fi/images/trainedabit.png)
 
