@@ -12,6 +12,38 @@
 - Saving and loading network from binary file
 - Training data generator for demonstration purposes (lots of hard peaks and valleys to learn)
 
+## Running the Neural Network
+Using the program is really easy and straightforward. Training mode example:  
+
+```c++
+// Create metadata of the network (with default values)
+NeuralSkeleton skeleton;
+skeleton.init();
+skeleton.generateTrainingData();
+
+// Create the network
+unique_ptr<NeuralNetwork> nn = make_unique<NeuralNetwork>(skeleton);
+nn->createNetwork();
+nn->iterate();
+nn->pRun();
+
+// Store the network as metadata to a binary file using cereal
+int ns=nn->neurons.size();
+for(int prin=0;prin<ns;prin++){
+		int lSize=nn->neurons.at(prin)->in.size();
+		for(int li=0;li<lSize;li++){
+				skeleton.setInputWeight(nn->neurons.at(prin)->in.at(li)->weight);
+		}
+}
+skeleton.validateNetwork();
+std::ofstream os("out.cereal", std::ios::binary);
+cereal::BinaryOutputArchive oarchive(os);
+oarchive(skeleton);
+
+```
+
+Trained visualized:
+
 ![Neural network](https://www.ttaito.fi/images/trainedabit.png)
 
 **Note that** you need to compile the code before running the program. The .exe files in this repo may not work in your particular computer (build in amd processor in windows 10 and optimized for native). 
