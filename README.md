@@ -1,6 +1,7 @@
 # Multilayer Neural Network built with c++
 
 ## Features:
+- Header only: just include neural.h and you are ready to go in any project. 
 - Easy to edit multilayer network for neural computing capable of running massive neural networks with excellent performance. Currently using 9600000 input nodes   (3 x 20 x 20 x 20 x 20 x 1). Note that at certain stage size does not matter. 
 - Portable skeleton struct enables easy sharing and loading from hard disk
 - Easy to load JSON data for predictions (upload data from database to JSON file in a cronjob for instance) using cereal library.  
