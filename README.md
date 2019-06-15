@@ -36,7 +36,7 @@ Note generating the training set may take several hours. The training set is sav
 
 Using the setup.exe file (64 or 32). 
 
-**2. Install dependencies (plus for debugging)**
+**2. Install dependencies**
 
 setup-x86_64.exe --disable-buggy-antivirus -q -P wget -P gcc-g++ -P make -P diffutils -P libmpfr-devel -P libgmp-devel -P libmpc-devel
 
