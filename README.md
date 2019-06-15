@@ -29,7 +29,7 @@ You must run the program on windows command prompt (win 10)
 NeuralM.exe 0 for training mode
 NeuralM.exe 1 for prediction mode
 
-Note generating the training set may take several hours. The training set is saved to a binary file and then read for the prediction. Also be carefull not to set the learning rate too high (you will see what happens). 
+Note generating the training set may take several hours. The training set is saved to a binary file and then read for the prediction. Also be carefull not to set the learning rate too high in training (you will see what happens). 
   
 ### You can also build your own compiler in windows with the latest gcc:
 **1. Run basic cygwin setup (installs the cygwin tools)**
