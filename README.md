@@ -46,6 +46,7 @@ oarchive(skeleton);
 
 ![Neural network](https://www.ttaito.fi/images/trainedabit.png)
 
+For the network to fully learn the data several thousands of iterations may be needed.
 **Note that** you need to compile the code before running the program. The .exe files in this repo may not work in your particular computer (build in amd processor in windows 10 and optimized for native). 
 
 ## The principle in neural network predictions: 
