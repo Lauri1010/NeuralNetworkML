@@ -1,4 +1,4 @@
-# Neural computing: Deep Learning Multilayer Neural Network
+# Multilayer Neural Network built with c++
 
 ## Features:
 - Easy to edit multilayer network for neural computing capable of running massive neural networks with excellent performance. Currently using 9600000 input nodes   (3 x 20 x 20 x 20 x 20 x 1). Note that at certain stage size does not matter. 
