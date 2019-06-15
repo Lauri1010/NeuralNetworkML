@@ -45,6 +45,7 @@ setup-x86_64.exe --disable-buggy-antivirus -q -P wget -P gcc-g++ -P make -P diff
 You can use home folder for instance.
 
 wget http://www.nic.funet.fi/pub/gnu/ftp.gnu.org/pub/gnu/gcc/gcc-9.1.0/gcc-9.1.0.tar.gz 
+
 tar xf gcc-9.1.0.tar.gz
 
 **4. Configure the build**
