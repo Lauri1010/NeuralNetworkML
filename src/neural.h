@@ -8,16 +8,15 @@
 
 #ifndef NEURAL_H_
 #define NEURAL_H_
-#include <math.h>
+#include <cmath>
 #include <vector>
 #include <memory>
-#include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
+#include <limits>
 #include <algorithm>
 #include <iomanip>
-#include <float.h>
 #include <iostream>
+#include <cfloat>
 #include <string>
 #include <sstream>
 #include <stdexcept>
@@ -38,7 +37,6 @@
 #include <chrono>
 #include <iostream>
 #include <iterator>
-#include <omp.h>
 using namespace std;
 
 class my_exception : public std::runtime_error {
@@ -203,7 +201,8 @@ class Input{
 		this->errorSumIn=0;
 		this->inputValue=0;
 	}
-	 double setInput(double input){
+
+	double setInput(double input){
 		double iv=this->weight*input;
 		this->inputValue=iv;
 		return iv;
@@ -238,7 +237,7 @@ class Input{
 		return this->fromNeuron;
 	}
 
-	void adjustWeights(double learningRate, double momentum,bool ei,bool start){
+	void adjustWeights(double momentum,bool ei,bool start){
 		double a=this->weight;
 		if(ei){
 			this->weight +=fRand(0.00000000000000001, 0.0000000000000000089);
@@ -655,7 +654,7 @@ class NeuralNetwork{
 		  this->totalOutput=0;
 		  this->bestErrorRate=0;
 		  this->nDivider=0;
-		  this->currentErrorValue=DBL_MAX;
+		  this->currentErrorValue=std::numeric_limits<double>::max();
 		  this->currentOutputSum=0;
 		  this->neuronsVSize=0;
 		  this->neuronsVSizeM=0;
@@ -740,7 +739,7 @@ class NeuralNetwork{
 
 	  void pRun(){
 			 for(int dataLocation=0;dataLocation<this->skeleton.inputDataSize;dataLocation++){
-				 this->feedForward(true,dataLocation);
+				 this->feedForward(true,dataLocation,false,false);
 			 }
 	  }
 	  void lRun(bool mt, int sample){
@@ -784,12 +783,21 @@ class NeuralNetwork{
 
 	  void runTrainingRound(int rLoc,int cutoff, double bias,int sample,bool ls,bool stochastic){
 				for(int r=rLoc;r<cutoff;++r){
-					this->feedForward(false,r);
-					this->backPropagate(bias,sample,ls);
-					if(stochastic && r>rLoc){
-						this->learn(false);
+					if(stochastic){
+						if(r>rLoc){
+							this->feedForward(false,r,true,false);
+						}else{
+							this->feedForward(false,r,true,true);
+						}
+						this->backPropagate(bias,sample,ls);
 					}else{
-						this->learn(true);
+						this->feedForward(false,r,false,false);
+						this->backPropagate(bias,sample,ls);
+						if(r>rLoc){
+							this->learn(false);
+						}else{
+							this->learn(true);
+						}
 					}
 				}
 
@@ -799,7 +807,7 @@ class NeuralNetwork{
 			this->runAnnealing(0, cf, heat, cycles,false);
 	  }
 
-	  void feedForward(bool showOutput,int dataLocation){
+	  void feedForward(bool showOutput,int dataLocation,bool learn,bool start){
 			 if(dataLocation<this->skeleton.inputDataSize){
 					try{
 					    int oDataLoc=0;
@@ -807,19 +815,21 @@ class NeuralNetwork{
 					    int layer=0;
 							  do{
 									  for(int c=this->layers.at(layer).at(0);c<this->layers.at(layer).at(1);++c){
+										    auto& iNeuron=this->neurons.at(c);
 											if(layer==0){
-												this->neurons.at(c)->setInput(0,-1, this->skeleton.inputData.at(dataLocation).at(ifi),this->skeleton.maxInputValue);
+												iNeuron->setInput(0,-1, this->skeleton.inputData.at(dataLocation).at(ifi),this->skeleton.maxInputValue);
 												ifi++;
 											}else if(layer>0){
 												int i=0;
 												for(int ix=layers.at(layer-1).at(0);ix<layers.at(layer-1).at(1);++ix){
-													this->neurons.at(c)->setInput(i,ix,this->neurons.at(ix)->getOutputStatic(),this->skeleton.maxInputValue);
+													if(learn){iNeuron->in.at(i)->adjustWeights(this->skeleton.momentum,this->eIncreasing,start);};
+													iNeuron->setInput(i,ix,this->neurons.at(ix)->getOutputStatic(),this->skeleton.maxInputValue);
 													++i;
 												}
 											}
-											this->neurons.at(c)->aOutput();
+											iNeuron->aOutput();
 											if(layer==this->skeleton.neuronMapSizeM){
-												  this->neurons.at(c)->finalOutput(this->skeleton.idealData.at(dataLocation).at(oDataLoc),this->it,oDataLoc,showOutput,this->totalReturnValue);
+												  iNeuron->finalOutput(this->skeleton.idealData.at(dataLocation).at(oDataLoc),this->it,oDataLoc,showOutput,this->totalReturnValue);
 												  ++oDataLoc;
 											}
 									  }
@@ -907,7 +917,7 @@ class NeuralNetwork{
 		  int layer=this->neurons.at(cNeuronIndex)->layer;
 		  do{
 				  for(int c=0;c<neurons.at(cNeuronIndex)->inputs;++c){
-					  this->neurons.at(cNeuronIndex)->in.at(c)->adjustWeights(this->skeleton.learningRate, this->skeleton.momentum,this->eIncreasing,start);
+					  this->neurons.at(cNeuronIndex)->in.at(c)->adjustWeights(this->skeleton.momentum,this->eIncreasing,start);
 				  }
 			  	  if(layer==this->skeleton.neuronMapSizeM){
 					 this->neurons.at(cNeuronIndex)->errorSumAbs=0;
@@ -990,7 +1000,7 @@ class NeuralNetwork{
 				do{
 						this->randomize(currentTemp,previusTemp,heat);
 						while(rLoc<cutoff){
-								this->feedForward(false,rLoc);
+								this->feedForward(false,rLoc,false,false);
 								rLoc++;
 						}
 						rLoc=eLoc2;

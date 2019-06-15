@@ -20,21 +20,21 @@ int main (int argc, char *argv[]){
 		 if(param==0){
 			 try{
 				 NeuralSkeleton skeleton;
-				 skeleton.learningRate=0.00000019;
-				 skeleton.momentum=0.8215188;
-				 skeleton.mCutoff=500000;
+				 skeleton.learningRate=0.000001551111;
+				 skeleton.momentum=0.1545188;
+				 skeleton.mCutoff=400000;
 				 skeleton.m=2500;
-				 skeleton.aCutoff=320000;
-				 skeleton.sampleMax=80;
-				 skeleton.sampleMin=8;
+				 skeleton.aCutoff=72000;
+				 skeleton.sampleMax=100;
+				 skeleton.sampleMin=20;
 				 skeleton.init();
 				 // Needs to be set even if it is overwritten
 				 skeleton.generateTrainingData();
-				 /*
+
 				 std::ofstream jFile("data.json",ios::out);
 				 cereal::JSONOutputArchive jArchive(jFile);
 				 jArchive(CEREAL_NVP(skeleton.inputData),CEREAL_NVP(skeleton.idealData));
-				 jFile.close();*/
+				 jFile.close();
 				 /*
 				 std::ofstream jFile2("ideal.json",ios::out);
 				 cereal::JSONOutputArchive jArchive2(jFile2);
