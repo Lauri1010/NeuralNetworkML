@@ -51,6 +51,7 @@ tar xf gcc-9.1.0.tar.gz
 **4. Configure the build**
 
 mkdir build-gcc
+
 cd build-gcc
 
 ../gcc-9.1.0/configure --program-suffix=-9.1.0 --enable-languages=c,c++ --disable-bootstrap --disable-shared
