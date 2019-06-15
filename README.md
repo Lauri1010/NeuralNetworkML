@@ -21,7 +21,7 @@ Note that tuning for different datasets may take some time as you need to adjust
 
 ### Building and running in windows
 In windows you need to install gycwin. 
-- use ide for instance: https://www.eclipse.org/downloads/packages/eclipse-ide-cc-developers/oxygen3a
+- Use IDE. For instance: https://www.eclipse.org/downloads/packages/eclipse-ide-cc-developers/oxygen3a
 - Install cygwin: https://www3.ntu.edu.sg/home/ehchua/programming/howto/EclipseCpp_HowTo.html
   MAKE sure you download all dependencies.
   
