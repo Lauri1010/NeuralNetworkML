@@ -1,4 +1,4 @@
-# Multilayer Neural Network built with c++
+# Multilayer Neural Network using c++
 
 ## Features:
 - Multithreaded for improved performance
