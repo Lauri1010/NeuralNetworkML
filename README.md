@@ -42,13 +42,13 @@ cereal::BinaryOutputArchive oarchive(os);
 oarchive(skeleton);
 
 ```
+**Note that** you need to compile the code before running the program. The .exe files in this repo may not work in your particular computer (build in amd processor in windows 10 and optimized for native). Also you shoud start with modest settings.
 
 **An example**
+![neural network result](https://raw.githubusercontent.com/Lauri1010/NeuralNetworkML/master/trained.png)
 
+For the network to fully learn the data several hundreds of thousands of iterations may be needed. But as can be seen above the network learns a rather challenging dataset with lots of peaks and valleys and some randomness remarkably well with with 180k training iterations. 
 
-
-For the network to fully learn the data several hundreds of thousands of iterations may be needed.
-**Note that** you need to compile the code before running the program. The .exe files in this repo may not work in your particular computer (build in amd processor in windows 10 and optimized for native). 
 
 ## The principle in neural network predictions: 
 First load training data to JSON (from a database for instance) in the provided format. Then use the saved binary of the network after training to predict with new similar data (for instance stock index historic and future data). 
