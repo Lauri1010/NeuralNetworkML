@@ -43,7 +43,7 @@ oarchive(skeleton);
 
 ```
 
-**An example **
+**An example**
 
 
 
