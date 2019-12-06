@@ -43,7 +43,8 @@ oarchive(skeleton);
 
 ```
 
-**An example after 30 seconds of training**
+**An example **
+
 
 
 For the network to fully learn the data several hundreds of thousands of iterations may be needed.
