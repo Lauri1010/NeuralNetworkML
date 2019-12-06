@@ -38,6 +38,7 @@
 #include <iostream>
 #include <iterator>
 using namespace std;
+extern int parallelism_enabled;
 
 class my_exception : public std::runtime_error {
     std::string msg;
@@ -734,6 +735,10 @@ class NeuralNetwork{
 		while(this->it<this->skeleton.mCutoff){
 				 	int sample=rand() % this->skeleton.sampleMax + this->skeleton.sampleMin;
 				 	this->lRun(false,sample);
+
+				    if(this->totalReturnValuePR < this->skeleton.av){
+				    	 break;
+				    }
 		}
 	  }
 
@@ -749,12 +754,11 @@ class NeuralNetwork{
 						int rLoc=rand()%(this->skeleton.inputDataSize-sample-0 + 1) + 0;
 						int cutoff=rLoc+sample;
 						double bias=skeleton.bStart*rt;
-						bool cn=true;
 						int siMax=3;
 
-						for(int si=0;si<siMax && cn;++si){
+						for(int si=0;si<siMax;++si){
 							runTrainingRound(rLoc,cutoff,bias,sample,false,true);
-							cn=this->checkDataAndCleanUp(sample,false,true,true);
+							this->checkDataAndCleanUp(sample,false,true,true);
 							if(this->eIncreasing && si>0){
 								bias+=this->bias;
 							}
@@ -762,6 +766,10 @@ class NeuralNetwork{
 								siMax*=10;
 							}
 						}
+
+					    if(this->totalReturnValuePR < this->skeleton.av){
+					    	 return;
+					    }
 
 						if(this->nCycle>11000 || this->nCycle==0){
 							int mc=this->skeleton.inputDataSize;
@@ -782,7 +790,9 @@ class NeuralNetwork{
 	  }
 
 	  void runTrainingRound(int rLoc,int cutoff, double bias,int sample,bool ls,bool stochastic){
-				for(int r=rLoc;r<cutoff;++r){
+
+			  #pragma omp parallel for num_threads(2)
+		  	  for(int r=rLoc;r<cutoff;++r){
 					if(stochastic){
 						if(r>rLoc){
 							this->feedForward(false,r,true,false);
@@ -942,7 +952,7 @@ class NeuralNetwork{
 			  }while(layer>0);
 	  }
 
-	  bool checkDataAndCleanUp(int sample,bool suppress,bool rc,bool ib){
+	  void checkDataAndCleanUp(int sample,bool suppress,bool rc,bool ib){
 		  	this->skeleton.learningRate=this->skeleton.learningRate/(1.0+((double)this->it/(double)this->skeleton.aCutoff));
 		    if(this->totalReturnValueP>0){
 					  if((this->totalReturnValue < this->totalReturnValueP)){
@@ -973,11 +983,6 @@ class NeuralNetwork{
 				 printf("Iteration: %i current deviation from ideal results: %.16g  \n",this->it,this->totalReturnValuePR);
 			 }
 		     this->totalReturnValue=0;
-		     if(this->totalReturnValuePR < this->skeleton.av){
-		    	 return false;
-		     }else{
-		    	 return true;
-		     }
 	  }
 
 	  void runAnnealing(int rLoc, int cutoff, double heat, double cycles,bool ca){
@@ -993,7 +998,6 @@ class NeuralNetwork{
 			int eLoc2=rLoc;
 			int ai=0;
 			int c=0;
-			bool cn=true;
 
 			do{
 				c=0;
@@ -1004,13 +1008,13 @@ class NeuralNetwork{
 								rLoc++;
 						}
 						rLoc=eLoc2;
-						cn=this->checkDataAndCleanUp(cutoff,true,true,false);
+						this->checkDataAndCleanUp(cutoff,true,true,false);
 						++ai;
 						pError=this->totalReturnValueP;
 						printf("Annealing: %i current deviation from ideal results: %.16g  \n",ai,this->totalReturnValuePR);
 
 						stopRate=pError/oError;
-						if(stopRate<stopRatet || pError <= this->skeleton.av || !cn){
+						if(stopRate<stopRatet || pError <= this->skeleton.av){
 							stop=true;
 						}
 						if(ca){

@@ -99,7 +99,7 @@ make install
 ### Building and running the neural network in linux:
 **You can build the sources for instance with:**
 
-g++ -O3 -Ofast -march=native -mtune=native -ftree-vectorize -ffast-math -frename-registers -floop-nest-optimize -Wall -std=c++17 -Wall -I/path-to-includes/includes -c neuralm.cpp -o neuralm
+g++ -fopenmp -O3 -std=c++14 -Ofast -march=native -mtune=native -ftree-vectorize -ffast-math -frename-registers -floop-nest-optimize -Wall -I/path-to-includes/includes -c neuralm.cpp -o neuralm
 
 This worked just fine in google cloud virtual server. Your system may have differences in the setup (and with c compilation).  
 
