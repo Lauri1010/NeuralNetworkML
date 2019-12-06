@@ -11,6 +11,7 @@
 
 int main (int argc, char *argv[]){
 	 try{
+		 omp_set_num_threads(4);
 		 if (argc < 1) {
 		        return 1;
 		 }
@@ -20,13 +21,14 @@ int main (int argc, char *argv[]){
 		 if(param==0){
 			 try{
 				 NeuralSkeleton skeleton;
-				 skeleton.learningRate=0.0000001551111;
-				 skeleton.momentum=0.001545188;
-				 skeleton.mCutoff=400000;
-				 skeleton.m=2500;
-				 skeleton.aCutoff=72000;
-				 skeleton.sampleMax=100;
-				 skeleton.sampleMin=20;
+				 skeleton.neuronsList={3,33,33,33,33,1};
+				 skeleton.learningRate=0.0000009;
+				 skeleton.momentum=0.4952999;
+				 skeleton.mCutoff=155000;
+				 skeleton.m=2000;
+				 skeleton.aCutoff=5500;
+				 skeleton.sampleMax=80;
+				 skeleton.sampleMin=10;
 				 skeleton.init();
 				 // Needs to be set even if it is overwritten
 				 skeleton.generateTrainingData();

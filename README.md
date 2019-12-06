@@ -1,6 +1,7 @@
 # Multilayer Neural Network built with c++
 
 ## Features:
+- Multithreaded for improved performance
 - Header only: just include neural.h and you are ready to go in any project. 
 - Easy to edit multilayer network for neural computing capable of running massive neural networks with excellent performance. Currently using 9600000 input nodes   (3 x 20 x 20 x 20 x 20 x 1). Note that at certain stage size does not matter. 
 - Portable skeleton struct enables easy sharing and loading from hard disk
@@ -44,7 +45,6 @@ oarchive(skeleton);
 
 **An example after 30 seconds of training**
 
-![Neural network](https://www.ttaito.fi/images/trainedabit.png)
 
 For the network to fully learn the data several hundreds of thousands of iterations may be needed.
 **Note that** you need to compile the code before running the program. The .exe files in this repo may not work in your particular computer (build in amd processor in windows 10 and optimized for native). 

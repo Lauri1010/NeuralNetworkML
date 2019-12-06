@@ -37,8 +37,8 @@
 #include <chrono>
 #include <iostream>
 #include <iterator>
+#include <omp.h>
 using namespace std;
-extern int parallelism_enabled;
 
 class my_exception : public std::runtime_error {
     std::string msg;
@@ -488,7 +488,7 @@ struct NeuralSkeleton{
 	 int idealDataSize;
 	 int idealDataSizeM;
 	 double maxInputValue;
-	 vector<int> neuronsList={3,20,20,20,20,1};
+	 vector<int> neuronsList={3,22,22,22,22,1};
 
 	 void init(){
 		 try{
@@ -771,9 +771,9 @@ class NeuralNetwork{
 					    	 return;
 					    }
 
-						if(this->nCycle>11000 || this->nCycle==0){
+						if(this->nCycle>55 || this->nCycle==0){
 							int mc=this->skeleton.inputDataSize;
-							int biMax=2;
+							int biMax=12;
 							for(int bi=0;bi<biMax;++bi){
 								runTrainingRound(0,mc,bias,mc,true,true);
 								this->checkDataAndCleanUp(mc,false,true,false);
@@ -791,7 +791,7 @@ class NeuralNetwork{
 
 	  void runTrainingRound(int rLoc,int cutoff, double bias,int sample,bool ls,bool stochastic){
 
-			  #pragma omp parallel for num_threads(2)
+			  #pragma omp parallel for simd
 		  	  for(int r=rLoc;r<cutoff;++r){
 					if(stochastic){
 						if(r>rLoc){
