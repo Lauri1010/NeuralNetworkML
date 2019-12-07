@@ -640,7 +640,6 @@ class NeuralNetwork{
 	  int neuronsVSize;
 	  int neuronsVSizeM;
 	  double nDivider;
-	  int nCycle;
 
 	  NeuralNetwork(NeuralSkeleton nSkeleton){
 		  this->skeleton=nSkeleton;
@@ -661,7 +660,6 @@ class NeuralNetwork{
 		  this->neuronsVSizeM=0;
 		  this->layerSize=0;
 		  this->bias=0;
-		  this->nCycle=0;
 	  }
 
 	  void createNetwork(){
@@ -731,14 +729,20 @@ class NeuralNetwork{
 		   }
 	  }
 
-	  void iterate(){
+	  void iterate(int cycles,int runDatasetsMax){
+		int cCount=0;
 		while(this->it<this->skeleton.mCutoff){
 				 	int sample=rand() % this->skeleton.sampleMax + this->skeleton.sampleMin;
 				 	this->lRun(false,sample);
 
-				    if(this->totalReturnValuePR < this->skeleton.av){
-				    	 break;
-				    }
+					if(cCount>cycles || cCount==0){
+						this->flRun(runDatasetsMax);
+						cCount=0;
+						if(this->totalReturnValuePR < this->skeleton.av){
+							 break;
+						}
+					}
+					++cCount;
 		}
 	  }
 
@@ -747,6 +751,15 @@ class NeuralNetwork{
 				 this->feedForward(true,dataLocation,false,false);
 			 }
 	  }
+
+	  void flRun(int runDatasetsMax){
+			int mc=this->skeleton.inputDataSize;
+			  for(int bi=0;bi<runDatasetsMax;++bi){
+				runTrainingRound(0,mc,bias,mc,true,true);
+				this->checkDataAndCleanUp(mc,false,true,false);
+			}
+	  }
+
 	  void lRun(bool mt, int sample){
 		  try{
 			  	  	  	double rt=(double)this->it/(double)this->skeleton.mCutoff;
@@ -771,16 +784,6 @@ class NeuralNetwork{
 					    	 return;
 					    }
 
-						if(this->nCycle>55 || this->nCycle==0){
-							int mc=this->skeleton.inputDataSize;
-							int biMax=12;
-							for(int bi=0;bi<biMax;++bi){
-								runTrainingRound(0,mc,bias,mc,true,true);
-								this->checkDataAndCleanUp(mc,false,true,false);
-							}
-							this->nCycle=0;
-						}
-						this->nCycle++;
 
 		  }catch (const std::exception& ex) {
 				 throw_line(ex.what());
@@ -857,10 +860,11 @@ class NeuralNetwork{
 		  try{
 			  int cNeuronIndex=this->neuronsVSizeM;
 			  double alr=this->skeleton.learningRate;
+
 			  if(ls){
-				  alr*=0.0002591;
+			  		alr*=0.0002591;
 			  }else{
-				  alr*=(( double)sample/( double)skeleton.inputDataSize)*1.3333;
+			  		alr*=(( double)sample/( double)skeleton.inputDataSize)*1.3333;
 			  }
 
 				  for(int layer=this->skeleton.neuronMapSizeM;layer>0;--layer){

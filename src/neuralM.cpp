@@ -22,13 +22,13 @@ int main (int argc, char *argv[]){
 			 try{
 				 NeuralSkeleton skeleton;
 				 skeleton.neuronsList={3,33,33,33,33,1};
-				 skeleton.learningRate=0.0000009;
-				 skeleton.momentum=0.4952999;
-				 skeleton.mCutoff=155000;
+				 skeleton.learningRate=0.00000019911;
+				 skeleton.momentum=0.4955;
+				 skeleton.mCutoff=38500;
 				 skeleton.m=2000;
-				 skeleton.aCutoff=5500;
-				 skeleton.sampleMax=80;
-				 skeleton.sampleMin=10;
+				 skeleton.aCutoff=1050;
+				 skeleton.sampleMax=120;
+				 skeleton.sampleMin=20;
 				 skeleton.init();
 				 // Needs to be set even if it is overwritten
 				 skeleton.generateTrainingData();
@@ -65,7 +65,7 @@ int main (int argc, char *argv[]){
 
 				 unique_ptr<NeuralNetwork> nn = make_unique<NeuralNetwork>(skeleton);
 				 nn->createNetwork();
-				 nn->iterate();
+				 nn->iterate(20,1);
 				 nn->pRun();
 
 				 int ns=nn->neurons.size();
